@@ -241,55 +241,156 @@ function attack(p, attackerUid, target) {
 
 function aiTurn() {
   if (game.over) return;
-  const steps = [];
+  setTimeout(() => {
+    aiPlaySeq(() => aiAttackStep(() => {
+      if (!game.over) setTimeout(() => startTurn(0), 400);
+    }));
+  }, 500);
+}
 
-  // 出牌：按费用从高到低尽量铺场
-  steps.push(() => {
-    let played = true;
-    while (played) {
-      played = false;
-      const pl = game.players[1];
-      const playable = pl.hand
-        .map((c, i) => ({ c, i }))
-        .filter(x => x.c.cost <= pl.energy && pl.board.length < MAX_BOARD)
-        .sort((a, b) => b.c.cost - a.c.cost);
-      if (playable.length > 0) {
-        playCard(1, playable[0].i);
-        played = true;
+// —— 出牌阶段：枚举手牌子集，在能量/场地限制内选总价值最高的组合，逐张打出 ——
+
+// 根据当前局势给卡牌附加分（基础分 = 费用*10，保证优先花光能量）
+function aiCardBonus(card) {
+  const ai = game.players[1];
+  const me = game.players[0];
+  let b = 0;
+  const bc = card.battlecry;
+  if (bc) {
+    switch (bc.type) {
+      case "heal_hero": // 受伤越多越值，满血则浪费
+        b += Math.min(bc.amount, HERO_HP - ai.hp) * 4 - bc.amount;
+        break;
+      case "draw": // 手牌越少越需要补充
+        b += Math.max(0, 6 - ai.hand.length) * 3;
+        break;
+      case "damage_face": // 玩家残血时更有价值
+        b += bc.amount * 3 + (me.hp <= 10 ? bc.amount * 4 : 0);
+        break;
+      case "damage_random":
+        if (me.board.length === 0) b += me.hp <= 10 ? bc.amount * 3 : -6;
+        else b += me.board.some(t => t.hp <= bc.amount) ? 10 : 4;
+        break;
+      case "damage_all": { // 有可斩杀目标才痛快放，空场宁可留一手
+        const kills = me.board.filter(t => t.hp <= bc.amount).length;
+        b += kills * 10 + (me.board.length - kills) * 3 + (me.board.length === 0 ? -15 : 0);
+        break;
       }
+      case "buff_all_atk": // 场上有自己人才有意义
+        b += ai.board.length * 4 + (ai.board.length === 0 ? -10 : 0);
+        break;
     }
-  });
-
-  // 攻击：优先解掉嘲讽；能安全吃掉的随从就换，否则打脸
-  steps.push(() => {
-    const pl = game.players[1];
-    for (const m of pl.board.filter(x => x.canAttack && x.atk > 0)) {
-      if (game.over) break;
-      const myTaunts = enemyTaunts(1); // 玩家方的嘲讽
-      let target = null;
-      if (myTaunts.length > 0) {
-        target = { type: "minion", uid: myTaunts[0].uid };
-      } else {
-        const kills = game.players[0].board.filter(t => t.hp <= m.atk && t.atk < m.hp);
-        if (kills.length > 0) {
-          kills.sort((a, b) => b.atk - a.atk);
-          target = { type: "minion", uid: kills[0].uid };
-        } else {
-          target = { type: "face" };
-        }
-      }
-      attack(1, m.uid, target);
-    }
-  });
-
-  steps.push(() => { if (!game.over) startTurn(0); });
-
-  // 分步执行，便于观战
-  let delay = 400;
-  for (const s of steps) {
-    setTimeout(() => { s(); render(); }, delay);
-    delay += 800;
   }
+  if (card.keywords.includes("taunt")) { // 对面攻击力越高/自己越残，越需要嘲讽
+    const threat = me.board.reduce((s, t) => s + t.atk, 0);
+    b += Math.min(threat, 10) + (ai.hp <= 15 ? 6 : 0);
+    if (ai.hp <= threat + 5) b += 12; // 快被打死了，急需人墙
+  }
+  if (card.keywords.includes("charge")) b += me.hp <= 12 ? 8 : 2; // 抢血
+  return b;
+}
+
+function chooseAiPlays() {
+  const ai = game.players[1];
+  const space = MAX_BOARD - ai.board.length;
+  const n = ai.hand.length;
+  if (n === 0 || space <= 0) return [];
+  const val = ai.hand.map(c => c.cost * 10 + aiCardBonus(c));
+
+  let best = null;
+  for (let mask = 1; mask < (1 << n); mask++) {
+    let cost = 0, v = 0, cnt = 0;
+    for (let i = 0; i < n; i++) {
+      if (mask & (1 << i)) { cost += ai.hand[i].cost; v += val[i]; cnt++; }
+    }
+    if (cost > ai.energy || cnt > space) continue;
+    if (!best || v > best.v) best = { mask, v };
+  }
+  if (!best || best.v <= 0) return [];
+
+  const cards = [];
+  for (let i = 0; i < n; i++) if (best.mask & (1 << i)) cards.push(ai.hand[i]);
+  // 出牌顺序：清场型战吼先手，全体加攻留到最后，其余按费用从高到低
+  const rank = c => {
+    if (c.battlecry && (c.battlecry.type === "damage_all" || c.battlecry.type === "damage_random")) return 0;
+    if (c.battlecry && c.battlecry.type === "buff_all_atk") return 2;
+    return 1;
+  };
+  cards.sort((a, b) => rank(a) - rank(b) || b.cost - a.cost);
+  return cards;
+}
+
+function aiPlaySeq(done) {
+  if (game.over) return;
+  const plan = chooseAiPlays(); // 每打一张都重新规划（战吼抽牌可能带来新选择）
+  if (plan.length === 0) { done(); return; }
+  const idx = game.players[1].hand.indexOf(plan[0]);
+  if (idx >= 0) playCard(1, idx);
+  render();
+  if (game.over) return;
+  setTimeout(() => aiPlaySeq(done), 700);
+}
+
+// —— 攻击阶段：每 600ms 出一刀，先算斩杀，再解嘲讽，然后评估换血是否划算 ——
+
+function aiAttackStep(done) {
+  if (game.over) return;
+  const ai = game.players[1];
+  const me = game.players[0];
+  const attackers = ai.board.filter(m => m.canAttack && m.atk > 0);
+  if (attackers.length === 0) { done(); return; }
+
+  const taunts = me.board.filter(m => m.taunt);
+  const totalAtk = attackers.reduce((s, m) => s + m.atk, 0);
+  let atkM = null, target = null;
+
+  if (taunts.length === 0 && totalAtk >= me.hp) {
+    // 斩杀线：全部打脸
+    atkM = attackers[0];
+    target = { type: "face" };
+  } else if (taunts.length > 0) {
+    // 解嘲讽：先杀血最少的；优先用能击杀且自己不死的最小攻击者
+    const t = taunts.slice().sort((a, b) => a.hp - b.hp)[0];
+    const killers = attackers.filter(m => m.atk >= t.hp);
+    const safe = killers.filter(m => t.atk < m.hp).sort((a, b) => a.atk - b.atk);
+    atkM = safe[0]
+      || killers.sort((a, b) => b.atk - a.atk)[0]
+      || attackers.slice().sort((a, b) => b.atk - a.atk)[0];
+    target = { type: "minion", uid: t.uid };
+  } else {
+    // 自由选择：评估所有(攻击者, 目标)组合，找收益超过打脸机会成本的最佳换血
+    const threat = me.board.reduce((s, t) => s + t.atk, 0);
+    const desperate = ai.hp <= threat + 2; // 再不清场，下回合可能被打死
+    let best = null;
+    for (const m of attackers) {
+      const faceCost = desperate ? 0 : m.atk * (me.hp <= 12 ? 3.5 : 1.8); // 打脸的机会成本
+      for (const t of me.board) {
+        if (m.atk < t.hp) continue; // 杀不掉的不换
+        const survives = t.atk < m.hp;
+        let v = t.atk * 3 + t.card.cost * 2;          // 清掉威胁的收益
+        v += survives ? 6 : -m.card.cost * 2;          // 白吃加分，阵亡扣分
+        v -= Math.max(0, m.atk - t.hp);                // 惩罚大牛换小虾
+        if (v > faceCost && (!best || v > best.v)) best = { m, t, v };
+      }
+    }
+    if (best) {
+      atkM = best.m;
+      target = { type: "minion", uid: best.t.uid };
+    } else if (desperate && me.board.length > 0) {
+      // 绝境：即使一刀杀不死，也要往最大的威胁身上砍
+      const t = me.board.slice().sort((a, b) => b.atk - a.atk)[0];
+      atkM = attackers.slice().sort((a, b) => b.atk - a.atk)[0];
+      target = { type: "minion", uid: t.uid };
+    } else {
+      atkM = attackers.slice().sort((a, b) => b.atk - a.atk)[0];
+      target = { type: "face" };
+    }
+  }
+
+  attack(1, atkM.uid, target);
+  render();
+  if (game.over) return;
+  setTimeout(() => aiAttackStep(done), 600);
 }
 
 // ---------- 渲染 ----------
