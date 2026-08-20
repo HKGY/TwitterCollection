@@ -41,6 +41,46 @@ function makeMinion(card) {
   };
 }
 
+// ---------- 头像与图鉴 ----------
+
+let playerAvatarId = null;
+try { playerAvatarId = localStorage.getItem("ttcg_avatar"); } catch (e) { /* 无 localStorage 环境 */ }
+
+function avatarCard(id) { return CARD_POOL.find(c => c.id === id) || null; }
+
+function ensurePlayerAvatar() {
+  if (!avatarCard(playerAvatarId)) {
+    playerAvatarId = CARD_POOL[Math.floor(Math.random() * CARD_POOL.length)].id;
+  }
+}
+
+function setPlayerAvatar(id) {
+  playerAvatarId = id;
+  try { localStorage.setItem("ttcg_avatar", id); } catch (e) { /* ignore */ }
+  buildGallery();
+  render();
+}
+
+function buildGallery() {
+  const grid = $("#gallery-grid");
+  grid.innerHTML = "";
+  for (const c of CARD_POOL) {
+    const el = document.createElement("div");
+    el.className = "g-card" + (c.id === playerAvatarId ? " chosen" : "");
+    el.innerHTML = `
+      <div class="g-cost">${c.cost}</div>
+      <img src="${c.art}" alt="">
+      <div class="g-name">${c.name}</div>
+      <div class="g-title">${c.title}</div>
+      <div class="g-stats"><span class="atk">⚔ ${c.atk}</span><span class="hp">❤ ${c.hp}</span></div>
+      <div class="g-effect">${cardEffectText(c) || "—"}</div>
+      <div class="g-flavor">${c.flavor}</div>
+    `;
+    el.onclick = () => setPlayerAvatar(c.id);
+    grid.appendChild(el);
+  }
+}
+
 // ---------- 游戏状态 ----------
 
 function newGame() {
@@ -57,7 +97,10 @@ function newGame() {
   };
   for (let i = 0; i < 3; i++) { drawCard(0, true); drawCard(1, true); }
   drawCard(1, true); // 后手补一张
+  ensurePlayerAvatar();
+  game.aiAvatar = CARD_POOL[Math.floor(Math.random() * CARD_POOL.length)];
   addLog("对局开始！你先手。");
+  addLog(`对手这局顶着「${game.aiAvatar.name}」的头像登场。`);
   startTurn(0);
 }
 
@@ -388,6 +431,8 @@ function aiAttackStep(done) {
   }
 
   attack(1, atkM.uid, target);
+  // 防呆：若攻击因故未生效（canAttack 未被消耗），强制标记已行动，避免死循环
+  if (atkM.hp > 0 && atkM.canAttack) atkM.canAttack = false;
   render();
   if (game.over) return;
   setTimeout(() => aiAttackStep(done), 600);
@@ -501,6 +546,10 @@ function render() {
   hidePreview(); // 重建 DOM 前收起预览，避免残留
   const [me, ai] = game.players;
 
+  const pa = avatarCard(playerAvatarId);
+  if (pa) { $("#my-avatar").src = pa.art; $("#my-name").textContent = "你 · " + pa.name; }
+  if (game.aiAvatar) { $("#ai-avatar").src = game.aiAvatar.art; $("#ai-name").textContent = "对手 · " + game.aiAvatar.name; }
+
   $("#ai-hp").textContent = ai.hp;
   $("#my-hp").textContent = me.hp;
   $("#ai-hand-count").textContent = ai.hand.length;
@@ -547,5 +596,7 @@ window.addEventListener("DOMContentLoaded", () => {
     render();
   };
   $("#restart").onclick = () => { $("#overlay").classList.add("hidden"); newGame(); };
+  $("#open-gallery").onclick = () => { buildGallery(); $("#gallery").classList.remove("hidden"); };
+  $("#close-gallery").onclick = () => $("#gallery").classList.add("hidden");
   newGame();
 });

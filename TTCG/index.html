@@ -29,7 +29,12 @@
     padding: 8px 16px; background: var(--panel); border-bottom: 1px solid var(--line);
   }
   header h1 { font-size: 16px; color: var(--gold); }
-  header .hint { color: var(--dim); font-size: 12px; }
+  header .hint { color: var(--dim); font-size: 12px; flex: 1; }
+  #open-gallery {
+    padding: 6px 16px; font-size: 13px; font-weight: bold; border: none; border-radius: 6px;
+    background: var(--blue); color: #0b1020; cursor: pointer;
+  }
+  #open-gallery:hover { filter: brightness(1.1); }
 
   #main { flex: 1; display: flex; min-height: 0; }
   #battlefield { flex: 1; display: flex; flex-direction: column; min-width: 0; }
@@ -43,7 +48,10 @@
     background: var(--panel2); border: 2px solid var(--line);
     border-radius: 10px; padding: 6px 14px; cursor: default;
   }
-  .hero .face { font-size: 22px; }
+  .hero .face-img {
+    width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+    border: 2px solid var(--line); background: #fff; display: block;
+  }
   .hero .hp { color: var(--red); font-weight: bold; font-size: 20px; min-width: 2ch; text-align: center; }
   .hero .label { color: var(--dim); font-size: 12px; }
   #ai-hero.targetable { border-color: var(--red); cursor: crosshair; box-shadow: 0 0 10px rgba(255,107,107,.5); animation: pulse 1s infinite; }
@@ -160,21 +168,69 @@
     padding: 10px 28px; font-size: 16px; border: none; border-radius: 8px;
     background: var(--blue); color: #0b1020; font-weight: bold; cursor: pointer;
   }
+
+  /* 图鉴 */
+  #gallery {
+    position: fixed; inset: 0; background: rgba(10, 12, 18, .97); z-index: 8;
+    display: flex; flex-direction: column;
+  }
+  #gallery.hidden { display: none; }
+  #gallery-head {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--panel);
+  }
+  #gallery-head h2 { font-size: 18px; color: var(--gold); }
+  #gallery-head .hint { color: var(--dim); font-size: 13px; flex: 1; }
+  #close-gallery {
+    padding: 8px 20px; font-size: 14px; font-weight: bold; border: none; border-radius: 6px;
+    background: var(--gold); color: #1a1400; cursor: pointer;
+  }
+  #gallery-grid {
+    flex: 1; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 16px;
+    padding: 20px; align-content: flex-start; justify-content: center;
+  }
+  .g-card {
+    width: 200px; border-radius: 14px; background: var(--panel2);
+    border: 2px solid var(--line); overflow: hidden; position: relative;
+    cursor: pointer; transition: transform .12s, border-color .12s, box-shadow .12s;
+  }
+  .g-card:hover { transform: translateY(-4px); border-color: var(--blue); }
+  .g-card.chosen { border-color: var(--gold); box-shadow: 0 0 14px rgba(245, 197, 66, .5); }
+  .g-card.chosen::after {
+    content: "我的头像"; position: absolute; top: 8px; right: 8px;
+    background: var(--gold); color: #1a1400; font-size: 11px; font-weight: bold;
+    padding: 2px 8px; border-radius: 10px;
+  }
+  .g-card img { width: 100%; height: 170px; object-fit: cover; display: block; background: #fff; }
+  .g-card .g-cost {
+    position: absolute; top: 8px; left: 8px; width: 28px; height: 28px;
+    background: var(--blue); color: #0b1020; font-weight: bold; font-size: 15px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    border: 2px solid #0b1020;
+  }
+  .g-card .g-name { font-size: 15px; font-weight: bold; padding: 6px 10px 0; }
+  .g-card .g-title { font-size: 12px; color: var(--gold); padding: 0 10px; }
+  .g-card .g-stats { font-size: 14px; font-weight: bold; padding: 3px 10px; }
+  .g-card .g-stats .atk { color: var(--gold); margin-right: 12px; }
+  .g-card .g-stats .hp { color: var(--green); }
+  .g-card .g-effect { font-size: 12px; padding: 0 10px 3px; line-height: 1.5; min-height: 20px; }
+  .g-card .g-flavor { font-size: 11px; color: var(--dim); font-style: italic; padding: 0 10px 10px; line-height: 1.5; }
 </style>
 </head>
 <body>
   <header>
     <h1>TTCG · 推特头像卡牌对战</h1>
     <span class="hint">点手牌出牌 → 点亮起的己方随从选中 → 点敌方随从或敌方英雄进攻 → 结束回合</span>
+    <button id="open-gallery">📖 图鉴</button>
   </header>
 
   <div id="main">
     <div id="battlefield">
       <div class="hero-row">
         <div class="hero" id="ai-hero">
-          <span class="face">🤖</span>
+          <img class="face-img" id="ai-avatar" src="" alt="对手头像">
           <span class="hp" id="ai-hp">30</span>
-          <span class="label">对手</span>
+          <span class="label" id="ai-name">对手</span>
         </div>
         <div class="meta">
           <span>手牌 <b id="ai-hand-count">0</b></span>
@@ -187,9 +243,9 @@
 
       <div class="hero-row">
         <div class="hero" id="my-hero">
-          <span class="face">🙂</span>
+          <img class="face-img" id="my-avatar" src="" alt="我的头像">
           <span class="hp" id="my-hp">30</span>
-          <span class="label">你</span>
+          <span class="label" id="my-name">你</span>
         </div>
         <div class="meta">
           <span>能量 <b id="my-energy">0/0</b></span>
@@ -212,6 +268,15 @@
   <div id="overlay" class="hidden">
     <div id="overlay-text"></div>
     <button id="restart">再来一局</button>
+  </div>
+
+  <div id="gallery" class="hidden">
+    <div id="gallery-head">
+      <h2>📖 卡牌图鉴</h2>
+      <span class="hint">全部 30 张卡。点击任意卡牌，将它设为你的英雄头像（自动保存）；对手的头像每局随机。</span>
+      <button id="close-gallery">关闭</button>
+    </div>
+    <div id="gallery-grid"></div>
   </div>
 
   <div id="preview" class="hidden">
