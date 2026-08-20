@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TTCG · 推特头像卡牌对战</title>
+<style>
+  :root {
+    --bg: #14161f;
+    --panel: #1e2230;
+    --panel2: #262b3d;
+    --line: #3a4160;
+    --text: #e8eaf2;
+    --dim: #9aa1ba;
+    --gold: #f5c542;
+    --red: #ff6b6b;
+    --green: #6bd98a;
+    --blue: #6db3ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+    user-select: none;
+  }
+  header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 8px 16px; background: var(--panel); border-bottom: 1px solid var(--line);
+  }
+  header h1 { font-size: 16px; color: var(--gold); }
+  header .hint { color: var(--dim); font-size: 12px; }
+
+  #main { flex: 1; display: flex; min-height: 0; }
+  #battlefield { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .hero-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 6px 16px;
+  }
+  .hero {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--panel2); border: 2px solid var(--line);
+    border-radius: 10px; padding: 6px 14px; cursor: default;
+  }
+  .hero .face { font-size: 22px; }
+  .hero .hp { color: var(--red); font-weight: bold; font-size: 20px; min-width: 2ch; text-align: center; }
+  .hero .label { color: var(--dim); font-size: 12px; }
+  #ai-hero.targetable { border-color: var(--red); cursor: crosshair; box-shadow: 0 0 10px rgba(255,107,107,.5); animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 18px rgba(255,107,107,.8); } }
+
+  .meta { color: var(--dim); font-size: 12px; display: flex; gap: 14px; }
+
+  .board {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 12px;
+    padding: 4px 16px; min-height: 168px;
+  }
+  #ai-board { border-bottom: 1px dashed var(--line); }
+
+  .minion {
+    width: 128px; border-radius: 12px; background: var(--panel2);
+    border: 2px solid var(--line); overflow: hidden; position: relative;
+    cursor: pointer; transition: transform .1s, border-color .1s, box-shadow .1s;
+    flex-shrink: 0;
+  }
+  .minion img { width: 100%; height: 96px; object-fit: cover; display: block; background: #fff; }
+  .minion .mname { font-size: 14px; text-align: center; padding: 3px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .minion.taunt { border-color: #8d97c9; box-shadow: inset 0 0 0 1px #8d97c9; }
+  .minion.ready { border-color: var(--green); }
+  .minion.ready:hover { transform: translateY(-3px); }
+  .minion.selected { border-color: var(--gold); box-shadow: 0 0 12px rgba(245,197,66,.6); transform: translateY(-4px); }
+  #ai-board .minion:hover { border-color: var(--red); }
+
+  .stats {
+    display: flex; justify-content: space-between; padding: 2px 7px 4px;
+    font-weight: bold; font-size: 16px;
+  }
+  .stats .atk { color: var(--gold); }
+  .stats .atk::before { content: "⚔"; font-size: 12px; margin-right: 2px; }
+  .stats .hp { color: var(--green); }
+  .stats .hp.hurt { color: var(--red); }
+  .stats .hp::before { content: "❤"; font-size: 12px; margin-right: 2px; }
+
+  #hand-row {
+    display: flex; align-items: flex-end; gap: 8px;
+    padding: 8px 16px 12px; background: linear-gradient(#171a26, #12141d);
+    border-top: 1px solid var(--line); min-height: 236px;
+  }
+  #my-hand { display: flex; gap: 10px; flex: 1; overflow-x: auto; padding-bottom: 2px; }
+
+  .card {
+    width: 150px; border-radius: 12px; background: var(--panel2);
+    border: 2px solid var(--line); overflow: hidden; position: relative;
+    opacity: .55; flex-shrink: 0; transition: transform .12s, box-shadow .12s;
+  }
+  .card.playable { opacity: 1; cursor: pointer; border-color: #57628f; }
+  .card.playable:hover { transform: translateY(-8px); border-color: var(--gold); box-shadow: 0 6px 16px rgba(0,0,0,.5); z-index: 2; }
+  .card img { width: 100%; height: 100px; object-fit: cover; display: block; background: #fff; }
+  .card .cost {
+    position: absolute; top: 4px; left: 4px; width: 28px; height: 28px;
+    background: var(--blue); color: #0b1020; font-weight: bold; font-size: 16px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    border: 2px solid #0b1020; z-index: 1;
+  }
+  .card .cname { font-size: 14px; font-weight: bold; text-align: center; padding: 4px 5px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .ceffect { font-size: 12px; color: var(--dim); text-align: center; padding: 0 5px; height: 32px; overflow: hidden; line-height: 16px; }
+
+  /* 悬停大图预览 */
+  #preview {
+    position: fixed; left: 16px; top: 64px; width: 260px; z-index: 5;
+    background: var(--panel); border: 2px solid var(--gold); border-radius: 14px;
+    overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.6);
+    pointer-events: none;
+  }
+  #preview.hidden { display: none; }
+  #preview img { width: 100%; height: 240px; object-fit: cover; display: block; background: #fff; }
+  #preview .p-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px 2px; }
+  #preview .p-cost {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--blue); color: #0b1020;
+    font-weight: bold; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  #preview .p-name { font-size: 16px; font-weight: bold; }
+  #preview .p-title { font-size: 12px; color: var(--gold); padding: 0 10px; }
+  #preview .p-stats { font-size: 15px; font-weight: bold; padding: 4px 10px; }
+  #preview .p-stats .atk { color: var(--gold); margin-right: 12px; }
+  #preview .p-stats .hp { color: var(--green); }
+  #preview .p-effect { font-size: 13px; padding: 0 10px 4px; line-height: 1.5; }
+  #preview .p-flavor { font-size: 12px; color: var(--dim); font-style: italic; padding: 0 10px 10px; line-height: 1.5; }
+
+  #side {
+    width: 260px; background: var(--panel); border-left: 1px solid var(--line);
+    display: flex; flex-direction: column; padding: 10px;
+    gap: 8px;
+  }
+  #side h2 { font-size: 13px; color: var(--dim); }
+  #log {
+    flex: 1; overflow-y: auto; font-size: 12px; line-height: 1.7;
+    background: #12141d; border: 1px solid var(--line); border-radius: 8px; padding: 8px;
+  }
+  #log .turn { color: var(--gold); font-weight: bold; }
+  #log .good { color: var(--green); }
+  #log .bad { color: var(--red); }
+
+  #end-turn {
+    padding: 10px; font-size: 15px; font-weight: bold; border: none; border-radius: 8px;
+    background: var(--gold); color: #1a1400; cursor: pointer;
+  }
+  #end-turn:disabled { background: #4a4a55; color: #888; cursor: not-allowed; }
+
+  #overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.75);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+    z-index: 10;
+  }
+  #overlay.hidden { display: none; }
+  #overlay-text { font-size: 48px; font-weight: bold; }
+  #overlay-text.win { color: var(--gold); }
+  #overlay-text.lose { color: var(--red); }
+  #restart {
+    padding: 10px 28px; font-size: 16px; border: none; border-radius: 8px;
+    background: var(--blue); color: #0b1020; font-weight: bold; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>TTCG · 推特头像卡牌对战</h1>
+    <span class="hint">点手牌出牌 → 点亮起的己方随从选中 → 点敌方随从或敌方英雄进攻 → 结束回合</span>
+  </header>
+
+  <div id="main">
+    <div id="battlefield">
+      <div class="hero-row">
+        <div class="hero" id="ai-hero">
+          <span class="face">🤖</span>
+          <span class="hp" id="ai-hp">30</span>
+          <span class="label">对手</span>
+        </div>
+        <div class="meta">
+          <span>手牌 <b id="ai-hand-count">0</b></span>
+          <span>牌库 <b id="ai-deck-count">0</b></span>
+        </div>
+      </div>
+
+      <div class="board" id="ai-board"></div>
+      <div class="board" id="my-board"></div>
+
+      <div class="hero-row">
+        <div class="hero" id="my-hero">
+          <span class="face">🙂</span>
+          <span class="hp" id="my-hp">30</span>
+          <span class="label">你</span>
+        </div>
+        <div class="meta">
+          <span>能量 <b id="my-energy">0/0</b></span>
+          <span>牌库 <b id="my-deck-count">0</b></span>
+        </div>
+      </div>
+
+      <div id="hand-row">
+        <div id="my-hand"></div>
+      </div>
+    </div>
+
+    <div id="side">
+      <button id="end-turn">结束回合</button>
+      <h2>战斗记录</h2>
+      <div id="log"></div>
+    </div>
+  </div>
+
+  <div id="overlay" class="hidden">
+    <div id="overlay-text"></div>
+    <button id="restart">再来一局</button>
+  </div>
+
+  <div id="preview" class="hidden">
+    <img id="p-img" src="" alt="">
+    <div class="p-head">
+      <span class="p-cost" id="p-cost"></span>
+      <span class="p-name" id="p-name"></span>
+    </div>
+    <div class="p-title" id="p-title"></div>
+    <div class="p-stats"><span class="atk" id="p-atk"></span><span class="hp" id="p-hp"></span></div>
+    <div class="p-effect" id="p-effect"></div>
+    <div class="p-flavor" id="p-flavor"></div>
+  </div>
+
+  <script src="cards.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
