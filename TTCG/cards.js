@@ -214,4 +214,74 @@ const CARD_POOL = [
     keywords: [], battlecry: { type: "draw", amount: 1 },
     flavor: "躲在墙后翻书，被发现了也装没事。"
   },
+  {
+    id: "miracle", art: "assets/1034_MIRACLE.jpg",
+    name: "惠方卷", title: "闭眼默许愿",
+    cost: 2, atk: 1, hp: 3,
+    keywords: [], battlecry: { type: "heal_hero", amount: 2 },
+    flavor: "朝着吉位整根吃完，中途不能说话。"
+  },
+  {
+    id: "billchen", art: "assets/BillChen2001.jpg",
+    name: "戒指与慌张", title: "突然被求婚的脸",
+    cost: 3, atk: 3, hp: 3,
+    keywords: [], deathrattle: { type: "draw", amount: 1 },
+    flavor: "手上的戒指还没捂热，事情就变得复杂起来。"
+  },
+  {
+    id: "paulk", art: "assets/PaulKochakin.jpg",
+    name: "红中！", title: "雀桌上的狐狸",
+    cost: 4, atk: 4, hp: 3,
+    keywords: ["charge"],
+    flavor: "中！中啊！中嘞！——摸到就是胡，胡了就是冲。"
+  },
+  {
+    id: "yini", art: "assets/Yini_Ruohong.jpg",
+    name: "得意吐舌", title: "仰头小表情",
+    cost: 1, atk: 2, hp: 1,
+    keywords: [],
+    flavor: "嘿嘿，就是在说你哦。"
+  },
+  {
+    id: "riko", art: "assets/kusunoki_riko.jpg",
+    name: "爱心呆毛", title: "贝雷帽与星星",
+    cost: 4, atk: 3, hp: 5,
+    keywords: [], battlecry: { type: "heal_hero", amount: 2 },
+    flavor: "呆毛弯成爱心的时候，心情一定不坏。"
+  },
+  {
+    id: "qianye", art: "assets/qianye_zhenyu.jpg",
+    name: "花帽鼓嘴", title: "夏日遮阳墙",
+    cost: 3, atk: 2, hp: 5,
+    keywords: ["taunt"],
+    flavor: "草帽一压，嘴一鼓，谁也别想越过去。"
+  },
+  {
+    id: "saya", art: "assets/saya_nikaido.jpg",
+    name: "圆眼直视", title: "盯——",
+    cost: 3, atk: 3, hp: 4,
+    keywords: [],
+    flavor: "她只是看着你，你就先心虚了。"
+  },
+  {
+    id: "sumika", art: "assets/sumika_wallace.jpg",
+    name: "神明保佑", title: "兔子发卡的祈祷",
+    cost: 5, atk: 3, hp: 6,
+    keywords: [], battlecry: { type: "heal_hero", amount: 4 },
+    flavor: "「神様救ってくれる。」双手合十，就真的有点灵。"
+  },
+  {
+    id: "tennjou", art: "assets/tennjoukouki.jpg",
+    name: "皇冠公主", title: "王室仪仗",
+    cost: 5, atk: 4, hp: 6,
+    keywords: ["taunt"],
+    flavor: "眨一只眼是礼节，挡在你面前是职责。"
+  },
+  {
+    id: "cirno9", art: "assets/未命名的作品.jpg",
+    name: "冰之妖精", title: "自称最强⑨",
+    cost: 4, atk: 3, hp: 4,
+    keywords: [], battlecry: { type: "damage_all", amount: 1 },
+    flavor: "叼着冰棍登场，六片冰翼一抖，全场降温。"
+  },
 ];
