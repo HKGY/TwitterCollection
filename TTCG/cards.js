@@ -278,7 +278,7 @@ const CARD_POOL = [
     flavor: "眨一只眼是礼节，挡在你面前是职责。"
   },
   {
-    id: "cirno9", art: "assets/未命名的作品.jpg",
+    id: "cirno9", art: "assets/locklo01.jpg",
     name: "冰之妖精", title: "自称最强⑨",
     cost: 4, atk: 3, hp: 4,
     keywords: [], battlecry: { type: "damage_all", amount: 1 },
