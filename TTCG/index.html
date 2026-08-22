@@ -45,6 +45,12 @@
     color: #fff; cursor: pointer; box-shadow: 0 2px 10px rgba(103, 88, 255, .45);
   }
   #open-gallery:hover { filter: brightness(1.15); }
+  #back-menu {
+    padding: 7px 14px; font-size: 13px; font-weight: bold; border: none; border-radius: 8px;
+    background: var(--panel2); color: var(--text); cursor: pointer;
+    border: 1px solid var(--line);
+  }
+  #back-menu:hover { filter: brightness(1.25); }
 
   #main { flex: 1; display: flex; min-height: 0; }
   #battlefield { flex: 1; display: flex; flex-direction: column; min-width: 0; }
@@ -212,6 +218,48 @@
     box-shadow: 0 3px 14px rgba(103, 88, 255, .5);
   }
 
+  /* 开始菜单 */
+  #start-menu {
+    position: fixed; inset: 0; z-index: 7;
+    background: linear-gradient(155deg, #221049 0%, #170f33 45%, #0d1e45 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px; text-align: center; padding: 24px;
+  }
+  #start-menu.hidden { display: none; }
+  #menu-avatars { display: flex; margin-bottom: 6px; }
+  #menu-avatars img {
+    width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
+    border: 3px solid #fff; background: #fff; margin: 0 -10px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.5);
+  }
+  #menu-avatars img:nth-child(even) { transform: translateY(10px); }
+  #menu-title {
+    font-size: 72px; font-weight: 900; letter-spacing: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--pink), var(--blue));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    line-height: 1.1;
+  }
+  #menu-sub { font-size: 18px; color: var(--dim); letter-spacing: 6px; margin-top: -10px; }
+  #menu-buttons { display: flex; flex-direction: column; gap: 12px; margin-top: 18px; }
+  #menu-buttons button {
+    padding: 14px 64px; font-size: 18px; font-weight: 900;
+    border: none; border-radius: 12px; cursor: pointer;
+  }
+  #start-game {
+    background: linear-gradient(135deg, var(--gold), #ff9d3f); color: #3a2400;
+    box-shadow: 0 4px 18px rgba(255, 157, 63, .5);
+  }
+  #menu-gallery {
+    background: linear-gradient(135deg, var(--blue), var(--purple)); color: #fff;
+    box-shadow: 0 4px 18px rgba(103, 88, 255, .5);
+  }
+  #menu-buttons button:hover { filter: brightness(1.12); }
+  #menu-disclaimer {
+    margin-top: 26px; max-width: 560px; font-size: 12px; line-height: 1.8;
+    color: var(--dim); border-top: 1px solid var(--line); padding-top: 14px;
+  }
+  #menu-disclaimer b { color: var(--text); }
+
   /* 图鉴 */
   #gallery {
     position: fixed; inset: 0; background: rgba(10, 12, 18, .97); z-index: 8;
@@ -269,6 +317,7 @@
   <header>
     <h1>TTCG · 推特头像卡牌对战</h1>
     <span class="hint">点手牌出牌 → 点亮起的己方随从选中 → 点敌方随从或敌方英雄进攻 → 结束回合</span>
+    <button id="back-menu">🏠 菜单</button>
     <button id="open-gallery">📖 图鉴</button>
   </header>
 
@@ -316,6 +365,20 @@
   <div id="overlay" class="hidden">
     <div id="overlay-text"></div>
     <button id="restart">再来一局</button>
+  </div>
+
+  <div id="start-menu">
+    <div id="menu-avatars"></div>
+    <h1 id="menu-title">TTCG</h1>
+    <div id="menu-sub">推特头像卡牌对战</div>
+    <div id="menu-buttons">
+      <button id="start-game">⚔ 开始对战</button>
+      <button id="menu-gallery">📖 卡牌图鉴</button>
+    </div>
+    <div id="menu-disclaimer">
+      本游戏为同人娱乐作品，全部卡面来自网友头像的二次创作重绘，
+      卡牌名称、设定与数值均为虚构演绎，<b>所有角色均与现实中的人物无关</b>。
+    </div>
   </div>
 
   <div id="gallery" class="hidden">

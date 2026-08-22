@@ -12,6 +12,7 @@ const MAX_ENERGY = 10;
 
 let game = null;
 let uidCounter = 0;
+let sessionSeq = 0; // 每局递增：作废上一局残留的 AI 定时器
 
 // ---------- 工具 ----------
 
@@ -116,6 +117,7 @@ function buildGallery() {
 function newGame() {
   uidCounter = 0;
   game = {
+    sid: ++sessionSeq,
     players: [
       { name: "你", hp: HERO_HP, energy: 0, maxEnergy: 0, deck: makeDeck(), hand: [], board: [], fatigue: 0 },
       { name: "对手", hp: HERO_HP, energy: 0, maxEnergy: 0, deck: makeDeck(), hand: [], board: [], fatigue: 0 },
@@ -359,9 +361,12 @@ function attack(p, attackerUid, target) {
 
 function aiTurn() {
   if (game.over) return;
+  const sid = game.sid;
   setTimeout(() => {
-    aiPlaySeq(() => aiAttackStep(() => {
-      if (!game.over) setTimeout(() => startTurn(0), 400);
+    if (game.sid !== sid) return;
+    aiPlaySeq(sid, () => aiAttackStep(sid, () => {
+      if (game.sid !== sid || game.over) return;
+      setTimeout(() => { if (game.sid === sid) startTurn(0); }, 400);
     }));
   }, 500);
 }
@@ -444,21 +449,21 @@ function chooseAiPlays() {
   return cards;
 }
 
-function aiPlaySeq(done) {
-  if (game.over) return;
+function aiPlaySeq(sid, done) {
+  if (game.over || game.sid !== sid) return;
   const plan = chooseAiPlays(); // 每打一张都重新规划（战吼抽牌可能带来新选择）
   if (plan.length === 0) { done(); return; }
   const idx = game.players[1].hand.indexOf(plan[0]);
   if (idx >= 0) playCard(1, idx);
   render();
   if (game.over) return;
-  setTimeout(() => aiPlaySeq(done), 700);
+  setTimeout(() => aiPlaySeq(sid, done), 700);
 }
 
 // —— 攻击阶段：每 600ms 出一刀，先算斩杀，再解嘲讽，然后评估换血是否划算 ——
 
-function aiAttackStep(done) {
-  if (game.over) return;
+function aiAttackStep(sid, done) {
+  if (game.over || game.sid !== sid) return;
   const ai = game.players[1];
   const me = game.players[0];
   const attackers = ai.board.filter(m => m.attacksLeft > 0 && m.atk > 0);
@@ -525,7 +530,7 @@ function aiAttackStep(done) {
   if (atkM.hp > 0 && atkM.attacksLeft >= before) atkM.attacksLeft = before - 1;
   render();
   if (game.over) return;
-  setTimeout(() => aiAttackStep(done), 600);
+  setTimeout(() => aiAttackStep(sid, done), 600);
 }
 
 // ---------- 渲染 ----------
@@ -642,6 +647,7 @@ function effectDesc(eff) {
 }
 
 function render() {
+  if (!game) return; // 还在开始菜单，未开局
   hidePreview(); // 重建 DOM 前收起预览，避免残留
   const [me, ai] = game.players;
 
@@ -697,5 +703,29 @@ window.addEventListener("DOMContentLoaded", () => {
   $("#restart").onclick = () => { $("#overlay").classList.add("hidden"); newGame(); };
   $("#open-gallery").onclick = () => { buildGallery(); $("#gallery").classList.remove("hidden"); };
   $("#close-gallery").onclick = () => $("#gallery").classList.add("hidden");
-  newGame();
+
+  // 开始菜单
+  ensurePlayerAvatar();
+  buildMenuAvatars();
+  $("#start-game").onclick = () => {
+    $("#start-menu").classList.add("hidden");
+    newGame();
+  };
+  $("#menu-gallery").onclick = () => { buildGallery(); $("#gallery").classList.remove("hidden"); };
+  $("#back-menu").onclick = () => { $("#start-menu").classList.remove("hidden"); };
 });
+
+// 开始菜单顶部的装饰头像：随机挑 7 张卡面
+function buildMenuAvatars() {
+  const row = $("#menu-avatars");
+  row.innerHTML = "";
+  const pool = CARD_POOL.slice();
+  for (let i = 0; i < 7 && pool.length > 0; i++) {
+    const c = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+    const img = document.createElement("img");
+    img.src = c.art;
+    img.alt = "";
+    img.title = c.name;
+    row.appendChild(img);
+  }
+}
