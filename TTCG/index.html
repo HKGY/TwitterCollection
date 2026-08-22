@@ -105,6 +105,12 @@
   .minion img { width: 100%; height: 96px; object-fit: cover; display: block; background: #fff; }
   .minion .mname { font-size: 14px; text-align: center; padding: 3px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .minion.taunt { border-color: var(--purple); box-shadow: 0 0 10px rgba(160,107,255,.5), inset 0 0 0 1px var(--purple); }
+  .minion.shielded { box-shadow: 0 0 0 3px var(--gold), 0 0 14px rgba(255,201,63,.55); }
+  .minion.frozen { filter: saturate(.4) brightness(.85); }
+  .minion.frozen::after {
+    content: "❄"; position: absolute; top: 4px; right: 6px; font-size: 20px;
+    color: #9fdcff; text-shadow: 0 0 6px #4fc3ff; pointer-events: none;
+  }
   .minion.ready { border-color: var(--green); box-shadow: 0 0 10px rgba(67,229,140,.45); }
   .minion.ready:hover { transform: translateY(-3px); }
   .minion.selected { border-color: var(--gold); box-shadow: 0 0 16px rgba(255,201,63,.75); transform: translateY(-4px); }

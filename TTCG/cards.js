@@ -1,7 +1,9 @@
-// TTCG 卡牌数据 —— 30 张头像重绘卡
-// keywords: taunt(嘲讽) / charge(冲锋)
+// TTCG 卡牌数据 —— 50 张头像重绘卡
+// keywords: taunt(嘲讽) / charge(冲锋) / shield(圣盾) / lifesteal(吸血)
+//           poison(剧毒) / windfury(风怒) / grow(成长)
 // battlecry / deathrattle: { type, amount }
-//   type: heal_hero | draw | damage_random | damage_all | damage_face | buff_all_atk
+//   type: heal_hero | draw | damage_random | damage_all | damage_face
+//       | buff_all_atk | buff_random_ally | freeze_random
 
 const CARD_POOL = [
   {
@@ -21,7 +23,7 @@ const CARD_POOL = [
   {
     id: "dth", art: "assets/DTH34106926.jpg",
     name: "D 叔", title: "熊猫头把关人",
-    cost: 4, atk: 3, hp: 5,
+    cost: 4, atk: 2, hp: 6,
     keywords: ["taunt"],
     flavor: "「私は D おじさんです。」想过去？先问问叔。"
   },
@@ -35,9 +37,9 @@ const CARD_POOL = [
   {
     id: "fossil", art: "assets/Fossil_kolya.jpg",
     name: "云朵化石", title: "软乎乎的墙",
-    cost: 2, atk: 1, hp: 3,
-    keywords: ["taunt"],
-    flavor: "看起来软软的，撞上去才知道是化石。"
+    cost: 2, atk: 1, hp: 2,
+    keywords: ["taunt", "shield"],
+    flavor: "看起来软软的，撞上去才知道是化石——第一下根本敲不动。"
   },
   {
     id: "gamersfox", art: "assets/Gamers_foxs.jpg",
@@ -50,8 +52,8 @@ const CARD_POOL = [
     id: "hhcvhw", art: "assets/HhcvhW18221.jpg",
     name: "光环少女", title: "发圈即光环",
     cost: 5, atk: 4, hp: 5,
-    keywords: [], battlecry: { type: "heal_hero", amount: 3 },
-    flavor: "头顶那圈到底是发饰还是光环，她不肯说。"
+    keywords: ["shield"], battlecry: { type: "heal_hero", amount: 2 },
+    flavor: "头顶那圈是真光环——第一次受伤时会替她碎掉。"
   },
   {
     id: "hoshino", art: "assets/HoshinoStarry.jpg",
@@ -98,9 +100,9 @@ const CARD_POOL = [
   {
     id: "oppofans", art: "assets/OPPOFANS114514.jpg",
     name: "贝雷帽摇滚", title: "标准偶像身材",
-    cost: 4, atk: 4, hp: 4,
-    keywords: [],
-    flavor: "🤟 摆好姿势，嘟嘴，出道。"
+    cost: 4, atk: 3, hp: 4,
+    keywords: [], battlecry: { type: "buff_random_ally", amount: 2 },
+    flavor: "🤟 摆好姿势，嘟嘴，为队友打 call！"
   },
   {
     id: "nanodesu", art: "assets/Sp7R9gFmEr35361.jpg",
@@ -147,9 +149,9 @@ const CARD_POOL = [
   {
     id: "oquery", art: "assets/__oQuery.jpg",
     name: "芭比女孩", title: "回眸一咬",
-    cost: 2, atk: 3, hp: 1,
-    keywords: [],
-    flavor: "I'm a barbie girl——虎牙是真的会咬人。"
+    cost: 2, atk: 1, hp: 2,
+    keywords: ["poison"],
+    flavor: "I'm a barbie girl——那颗虎牙淬了毒，碰到就倒。"
   },
   {
     id: "ciwei", art: "assets/_ciweiqwq_.jpg",
@@ -161,16 +163,16 @@ const CARD_POOL = [
   {
     id: "akihiro", art: "assets/akihiro_0313.jpg",
     name: "饿饿狐", title: "看到你就流口水",
-    cost: 5, atk: 6, hp: 4,
-    keywords: [],
-    flavor: "她没有恶意，只是真的很饿。"
+    cost: 5, atk: 5, hp: 4,
+    keywords: ["lifesteal"],
+    flavor: "她没有恶意，只是真的很饿——咬到什么都能回口血。"
   },
   {
     id: "luoshuyao", art: "assets/luoshuyao.jpg",
     name: "鲨鱼尾", title: "龇牙冲刺",
-    cost: 4, atk: 4, hp: 3,
-    keywords: ["charge"],
-    flavor: "尾巴一甩，咬合力测试现在开始。"
+    cost: 4, atk: 3, hp: 4,
+    keywords: ["windfury"],
+    flavor: "尾巴一甩，咬合力测试现在开始——每回合测两次。"
   },
   {
     id: "seikuu", art: "assets/seikuushona.jpg",
@@ -196,9 +198,9 @@ const CARD_POOL = [
   {
     id: "unknown", art: "assets/unknown8m9s.jpg",
     name: "全黑之影", title: "???",
-    cost: 7, atk: 7, hp: 7,
-    keywords: [],
-    flavor: "这张图是纯黑的。没人知道里面画了什么。"
+    cost: 7, atk: 6, hp: 6,
+    keywords: ["grow"],
+    flavor: "这张图是纯黑的。而且每看一眼，黑影就更大一圈。"
   },
   {
     id: "yanbo", art: "assets/yanbo2004.jpg",
@@ -217,14 +219,14 @@ const CARD_POOL = [
   {
     id: "miracle", art: "assets/1034_MIRACLE.jpg",
     name: "惠方卷", title: "闭眼默许愿",
-    cost: 2, atk: 1, hp: 3,
+    cost: 2, atk: 1, hp: 4,
     keywords: [], battlecry: { type: "heal_hero", amount: 2 },
     flavor: "朝着吉位整根吃完，中途不能说话。"
   },
   {
     id: "billchen", art: "assets/BillChen2001.jpg",
     name: "戒指与慌张", title: "突然被求婚的脸",
-    cost: 3, atk: 3, hp: 3,
+    cost: 3, atk: 4, hp: 2,
     keywords: [], deathrattle: { type: "draw", amount: 1 },
     flavor: "手上的戒指还没捂热，事情就变得复杂起来。"
   },
@@ -245,23 +247,23 @@ const CARD_POOL = [
   {
     id: "riko", art: "assets/kusunoki_riko.jpg",
     name: "爱心呆毛", title: "贝雷帽与星星",
-    cost: 4, atk: 3, hp: 5,
+    cost: 4, atk: 2, hp: 6,
     keywords: [], battlecry: { type: "heal_hero", amount: 2 },
     flavor: "呆毛弯成爱心的时候，心情一定不坏。"
   },
   {
     id: "qianye", art: "assets/qianye_zhenyu.jpg",
-    name: "花帽鼓嘴", title: "夏日遮阳墙",
-    cost: 3, atk: 2, hp: 5,
-    keywords: ["taunt"],
-    flavor: "草帽一压，嘴一鼓，谁也别想越过去。"
+    name: "花帽鼓嘴", title: "夏日遮阳伞",
+    cost: 3, atk: 2, hp: 4,
+    keywords: ["shield"],
+    flavor: "草帽一压，嘴一鼓——第一下全被帽檐挡掉了。"
   },
   {
     id: "saya", art: "assets/saya_nikaido.jpg",
     name: "圆眼直视", title: "盯——",
-    cost: 3, atk: 3, hp: 4,
-    keywords: [],
-    flavor: "她只是看着你，你就先心虚了。"
+    cost: 3, atk: 2, hp: 3,
+    keywords: [], battlecry: { type: "freeze_random", amount: 1 },
+    flavor: "她只是看着你，你就僵在原地一动不敢动。"
   },
   {
     id: "sumika", art: "assets/sumika_wallace.jpg",
@@ -308,7 +310,7 @@ const CARD_POOL = [
   {
     id: "kisaragi", art: "assets/KisaragiSue.jpg",
     name: "盘腿学姐", title: "坐下聊聊吧",
-    cost: 3, atk: 2, hp: 4,
+    cost: 3, atk: 1, hp: 5,
     keywords: [], battlecry: { type: "heal_hero", amount: 2 },
     flavor: "她盘腿坐下来听你说完，心就不那么累了。"
   },
@@ -329,8 +331,8 @@ const CARD_POOL = [
   {
     id: "ciallowo", art: "assets/ciallowo.jpg",
     name: "睡着了", title: "口水冒泡中",
-    cost: 1, atk: 1, hp: 2,
-    keywords: [], deathrattle: { type: "heal_hero", amount: 1 },
+    cost: 1, atk: 0, hp: 3,
+    keywords: [], deathrattle: { type: "heal_hero", amount: 2 },
     flavor: "退场前说了句梦话，大家听完都被治愈了。"
   },
   {
@@ -343,7 +345,7 @@ const CARD_POOL = [
   {
     id: "shopassist", art: "assets/sh0p_ass1stant.jpg",
     name: "店员小人", title: "三笔画完",
-    cost: 1, atk: 1, hp: 1,
+    cost: 1, atk: 0, hp: 2,
     keywords: [], battlecry: { type: "draw", amount: 1 },
     flavor: "「欢迎光临～」顺手塞给你一张传单。"
   },
