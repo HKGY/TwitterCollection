@@ -284,4 +284,74 @@ const CARD_POOL = [
     keywords: [], battlecry: { type: "damage_all", amount: 1 },
     flavor: "叼着冰棍登场，六片冰翼一抖，全场降温。"
   },
+  {
+    id: "asakami", art: "assets/AsakamiOffcial.jpg",
+    name: "X 发卡", title: "乖巧猫嘴",
+    cost: 2, atk: 2, hp: 4,
+    keywords: [],
+    flavor: "别着 X 发卡，:3 地看着你，什么都不承认。"
+  },
+  {
+    id: "atrice", art: "assets/AtriceUHB.jpg",
+    name: "转载禁止结界", title: "無断転載禁止",
+    cost: 2, atk: 0, hp: 4,
+    keywords: ["taunt"],
+    flavor: "REPOST IS PROHIBITED——这行字本身就是一堵墙。"
+  },
+  {
+    id: "fiona", art: "assets/Fiona_Coyn3.jpg",
+    name: "狐面繁花", title: "花丛中的狐狸",
+    cost: 5, atk: 4, hp: 5,
+    keywords: [], battlecry: { type: "damage_random", amount: 2 },
+    flavor: "狐狸面具滑到一边，花瓣落下的瞬间已经出手。"
+  },
+  {
+    id: "kisaragi", art: "assets/KisaragiSue.jpg",
+    name: "盘腿学姐", title: "坐下聊聊吧",
+    cost: 3, atk: 2, hp: 4,
+    keywords: [], battlecry: { type: "heal_hero", amount: 2 },
+    flavor: "她盘腿坐下来听你说完，心就不那么累了。"
+  },
+  {
+    id: "naiwenel", art: "assets/Naiwenel.jpg",
+    name: "捧花微笑", title: "轻声的问候",
+    cost: 2, atk: 1, hp: 3,
+    keywords: [], battlecry: { type: "draw", amount: 1 },
+    flavor: "她双手捧在胸前，把想说的话都别在了花里。"
+  },
+  {
+    id: "caitiskk", art: "assets/caitiskk.jpg",
+    name: "麻花辫旅人", title: "斗篷与远方",
+    cost: 3, atk: 3, hp: 4,
+    keywords: [], deathrattle: { type: "damage_random", amount: 1 },
+    flavor: "倒下的时候，两条长辫子还会甩到人。"
+  },
+  {
+    id: "ciallowo", art: "assets/ciallowo.jpg",
+    name: "睡着了", title: "口水冒泡中",
+    cost: 1, atk: 1, hp: 2,
+    keywords: [], deathrattle: { type: "heal_hero", amount: 1 },
+    flavor: "退场前说了句梦话，大家听完都被治愈了。"
+  },
+  {
+    id: "r0yx1e", art: "assets/r0yx1e.jpg",
+    name: "花发箍", title: "迎面的笑容",
+    cost: 3, atk: 4, hp: 3,
+    keywords: [],
+    flavor: "发箍别好，花卡别正，今天也是元气满满的一天。"
+  },
+  {
+    id: "shopassist", art: "assets/sh0p_ass1stant.jpg",
+    name: "店员小人", title: "三笔画完",
+    cost: 1, atk: 1, hp: 1,
+    keywords: [], battlecry: { type: "draw", amount: 1 },
+    flavor: "「欢迎光临～」顺手塞给你一张传单。"
+  },
+  {
+    id: "xcate", art: "assets/xcate329.jpg",
+    name: "银发徽章", title: "沉静的注视",
+    cost: 6, atk: 5, hp: 7,
+    keywords: ["taunt"],
+    flavor: "她不说话，只是站在那里，谁也过不去。"
+  },
 ];
