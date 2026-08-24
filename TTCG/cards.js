@@ -1,4 +1,4 @@
-// TTCG 卡牌数据 —— 50 张头像重绘卡
+// TTCG 卡牌数据 —— 60 张头像重绘卡
 // keywords: taunt(嘲讽) / charge(冲锋) / shield(圣盾) / lifesteal(吸血)
 //           poison(剧毒) / windfury(风怒) / grow(成长)
 // battlecry / deathrattle: { type, amount }
@@ -355,5 +355,75 @@ const CARD_POOL = [
     cost: 6, atk: 5, hp: 7,
     keywords: ["taunt"],
     flavor: "她不说话，只是站在那里，谁也过不去。"
+  },
+  {
+    id: "bakayuanyu", art: "assets/BAKA_Yuanyu.jpg",
+    name: "无语小鸭", title: "一言难尽",
+    cost: 2, atk: 3, hp: 2,
+    keywords: [],
+    flavor: "冷汗流下来，头顶的小鸭子替她把想说的话咽了回去。"
+  },
+  {
+    id: "haige", art: "assets/HaigeSenmokkou.jpg",
+    name: "呆住了", title: "顶着纸帽的瞬间",
+    cost: 3, atk: 3, hp: 3,
+    keywords: [], battlecry: { type: "freeze_random", amount: 1 },
+    flavor: "她呆住了。看到她这个样子的人，也跟着呆住了。"
+  },
+  {
+    id: "lostattr", art: "assets/LostAttractor.jpg",
+    name: "星星魔女", title: "恋符全开",
+    cost: 5, atk: 4, hp: 4,
+    keywords: [], battlecry: { type: "damage_face", amount: 3 },
+    flavor: "星星眼亮起来的时候，魔炮已经对准了你的脸。"
+  },
+  {
+    id: "pasukalu", art: "assets/Pasukalu0.jpg",
+    name: "小恶魔尖耳", title: "嘘——",
+    cost: 4, atk: 4, hp: 4,
+    keywords: ["lifesteal"],
+    flavor: "指尖点在唇上，心形的瞳孔里映着你的血条。"
+  },
+  {
+    id: "unnowen", art: "assets/UNN_Owen.jpg",
+    name: "从容侧辫", title: "处变不惊",
+    cost: 4, atk: 4, hp: 5,
+    keywords: [],
+    flavor: "不慌不忙把辫子捋到胸前，然后一拳把事情解决。"
+  },
+  {
+    id: "julystratus", art: "assets/julystratus.jpg",
+    name: "七月积云", title: "温柔的云层",
+    cost: 2, atk: 1, hp: 4,
+    keywords: ["taunt"],
+    flavor: "像夏天的云一样拦在你面前，软软的，但过不去。"
+  },
+  {
+    id: "moepig", art: "assets/moepigqwq.jpg",
+    name: "睡猫团子", title: "越睡越大",
+    cost: 2, atk: 1, hp: 2,
+    keywords: ["grow"],
+    flavor: "蜷成一团睡着了。每睡一觉，就悄悄长大一圈。"
+  },
+  {
+    id: "huiliyi", art: "assets/real_huiliyi.jpg",
+    name: "笑成一条线", title: "眯眯眼常开",
+    cost: 1, atk: 1, hp: 3,
+    keywords: [],
+    flavor: "眼睛眯成两条线的人，心态一般都特别好。"
+  },
+  {
+    id: "akari", art: "assets/saint_Akari.jpg",
+    name: "就不做了", title: "睡大觉～",
+    cost: 5, atk: 2, hp: 8,
+    keywords: ["taunt"],
+    flavor: "「就不做了，睡大觉～」裹紧被子，谁来都不好使。"
+  },
+  {
+    id: "tcdwww", art: "assets/tcdwww.jpg",
+    name: "抿嘴委屈", title: "一言不发",
+    cost: 4, atk: 5, hp: 4,
+    keywords: [],
+    flavor: "她什么都没说，只是抿了抿嘴。然后出手很重。"
   },
 ];
