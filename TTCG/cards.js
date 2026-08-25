@@ -7,7 +7,7 @@
 
 const CARD_POOL = [
   {
-    id: "bigmilkbottle", art: "assets/BigMilkBottle.jpg",
+    id: "bigmilkbottle", art: "assets/BigMiIkBottIe.jpg",
     name: "发光的奶瓶", title: "补给道具",
     cost: 1, atk: 1, hp: 2,
     keywords: [], battlecry: { type: "heal_hero", amount: 2 },
@@ -63,7 +63,7 @@ const CARD_POOL = [
     flavor: "发卡上的星星是可以摘下来扔的。"
   },
   {
-    id: "nagi", art: "assets/Kazama_Nagi_.jpg",
+    id: "nagi", art: "assets/Hoshika_Mahiyo.jpg",
     name: "骄傲飘带", title: "吐舌小旗手",
     cost: 2, atk: 2, hp: 3,
     keywords: [], battlecry: { type: "heal_hero", amount: 1 },
@@ -287,7 +287,7 @@ const CARD_POOL = [
     flavor: "叼着冰棍登场，六片冰翼一抖，全场降温。"
   },
   {
-    id: "asakami", art: "assets/AsakamiOffcial.jpg",
+    id: "asakami", art: "assets/AsakamiOfficial.jpg",
     name: "X 发卡", title: "乖巧猫嘴",
     cost: 2, atk: 2, hp: 4,
     keywords: [],
