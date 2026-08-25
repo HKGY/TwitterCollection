@@ -1,4 +1,4 @@
-// TTCG 卡牌数据 —— 60 张头像重绘卡
+// TTCG 卡牌数据 —— 70 张头像重绘卡
 // keywords: taunt(嘲讽) / charge(冲锋) / shield(圣盾) / lifesteal(吸血)
 //           poison(剧毒) / windfury(风怒) / grow(成长)
 // battlecry / deathrattle: { type, amount }
@@ -425,5 +425,75 @@ const CARD_POOL = [
     cost: 4, atk: 5, hp: 4,
     keywords: [],
     flavor: "她什么都没说，只是抿了抿嘴。然后出手很重。"
+  },
+  {
+    id: "jom", art: "assets/jom123ab.jpg",
+    name: "信使的道别", title: "抛向天空的信",
+    cost: 3, atk: 2, hp: 5,
+    keywords: [], battlecry: { type: "draw", amount: 1 },
+    flavor: "信纸乘风而去，总有一封会落到你手上。"
+  },
+  {
+    id: "inoueqd", art: "assets/inoueqd.jpg",
+    name: "眼镜绅士", title: "可靠的大人",
+    cost: 4, atk: 4, hp: 4,
+    keywords: [],
+    flavor: "西装笔挺，笑容和煦——评论区里少见的正装出席。"
+  },
+  {
+    id: "yueli", art: "assets/yueliclaudius.jpg",
+    name: "捂眼比心", title: "贤者系 Vtuber",
+    cost: 3, atk: 3, hp: 3,
+    keywords: [], battlecry: { type: "buff_random_ally", amount: 1 },
+    flavor: "捂住一只眼，把画着爱心的那只手借给队友。"
+  },
+  {
+    id: "nancy", art: "assets/Nancytihaya.jpg",
+    name: "哇呀这是", title: "张开双臂冲过来",
+    cost: 2, atk: 2, hp: 2,
+    keywords: ["charge"],
+    flavor: "「哇呀这是！」话没说完，人已经扑到面前了。"
+  },
+  {
+    id: "seiran", art: "assets/Seiran____02.jpg",
+    name: "星瞳女仆", title: "猫耳侍奉中",
+    cost: 4, atk: 3, hp: 5,
+    keywords: [], battlecry: { type: "heal_hero", amount: 2 },
+    flavor: "眼里有星星的女仆小姐，端上来的红茶也闪闪发光。"
+  },
+  {
+    id: "xiaodai", art: "assets/xiaodaichen_awa.jpg",
+    name: "呆", title: "发呆传染中",
+    cost: 2, atk: 1, hp: 3,
+    keywords: [], battlecry: { type: "freeze_random", amount: 1 },
+    flavor: "头顶一个'呆'字。看着看着，你也跟着呆住了。"
+  },
+  {
+    id: "dzlwi", art: "assets/dzlwi.jpg",
+    name: "冬之泪", title: "结冰的目光",
+    cost: 4, atk: 3, hp: 5,
+    keywords: [], battlecry: { type: "freeze_random", amount: 1 },
+    flavor: "冬天的眼泪还没落地就结成了冰，落在谁身上谁就动不了。"
+  },
+  {
+    id: "poca", art: "assets/Poca2381.jpg",
+    name: "抛锚定泊", title: "托腮的惊喜",
+    cost: 3, atk: 3, hp: 4,
+    keywords: ["taunt"],
+    flavor: "胸前的锚一落，这片海域就归她管了。"
+  },
+  {
+    id: "juzi", art: "assets/juzi_you.jpg",
+    name: "帽中魔女", title: "帽子里有猫耳",
+    cost: 5, atk: 5, hp: 5,
+    keywords: [],
+    flavor: "宽大的魔女帽里藏着耳朵——藏得住耳朵，藏不住实力。"
+  },
+  {
+    id: "bootjenna", art: "assets/BootJenna.jpg",
+    name: "肉球拳", title: "pat pat",
+    cost: 3, atk: 2, hp: 3,
+    keywords: ["windfury"],
+    flavor: "粉嫩的肉垫怼到镜头前——一回合拍你两下，不痛，但很痒。"
   },
 ];
