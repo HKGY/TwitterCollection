@@ -1,4 +1,4 @@
-// TTCG 卡牌数据 —— 70 张头像重绘卡
+// TTCG 卡牌数据 —— 80 张头像重绘卡
 // keywords: taunt(嘲讽) / charge(冲锋) / shield(圣盾) / lifesteal(吸血)
 //           poison(剧毒) / windfury(风怒) / grow(成长)
 // battlecry / deathrattle: { type, amount }
@@ -495,5 +495,75 @@ const CARD_POOL = [
     cost: 3, atk: 2, hp: 3,
     keywords: ["windfury"],
     flavor: "粉嫩的肉垫怼到镜头前——一回合拍你两下，不痛，但很痒。"
+  },
+  {
+    id: "espania", art: "assets/Espania_CN.jpg",
+    name: "虎年贺岁", title: "怀里的小老虎",
+    cost: 6, atk: 5, hp: 5,
+    keywords: [], battlecry: { type: "buff_all_atk", amount: 1 },
+    flavor: "2026，虎虎生威——小老虎一亮相，全场士气高涨。"
+  },
+  {
+    id: "ethengod", art: "assets/EthenGodqwq.jpg",
+    name: "天使与恶魔", title: "十字架与小尾巴",
+    cost: 3, atk: 2, hp: 4,
+    keywords: ["lifesteal"],
+    flavor: "头上是天使的翅膀，身后是恶魔的尾巴，吸走的血算谁的？"
+  },
+  {
+    id: "kubo", art: "assets/Kubo_Chiyoda.jpg",
+    name: "市女笠", title: "折扇大和抚子",
+    cost: 5, atk: 3, hp: 7,
+    keywords: ["taunt"],
+    flavor: "折扇轻掩，笠影低垂——想过去，先问过千代田小姐。"
+  },
+  {
+    id: "storyandzi", art: "assets/Storyandzi.jpg",
+    name: "瞳中宝石", title: "被看到就完了",
+    cost: 3, atk: 1, hp: 4,
+    keywords: ["poison"],
+    flavor: "乱发之后那只眼睛里嵌着宝石。与它对视的东西都会碎掉。"
+  },
+  {
+    id: "xxxu", art: "assets/Xxxu1024.jpg",
+    name: "头顶蝾螈", title: "六角恐龙与嘟嘴",
+    cost: 3, atk: 2, hp: 5,
+    keywords: ["grow"],
+    flavor: "头上趴着一只美西螈。再生能力太强了，越养越大。"
+  },
+  {
+    id: "yisemly", art: "assets/Yisemly.jpg",
+    name: "借物少女", title: "吉卜力的目光",
+    cost: 4, atk: 3, hp: 5,
+    keywords: [], battlecry: { type: "draw", amount: 1 },
+    flavor: "从小人的世界借来一件小东西，也借来一点点智慧。"
+  },
+  {
+    id: "yumeoibito", art: "assets/Yumeoibito76.jpg",
+    name: "追梦人", title: "撩发的微笑",
+    cost: 6, atk: 4, hp: 6,
+    keywords: [], battlecry: { type: "draw", amount: 2 },
+    flavor: "她撩起一缕头发笑了笑，你忽然想起了两个好点子。"
+  },
+  {
+    id: "jkiesoft", art: "assets/jkiesoft.jpg",
+    name: "狐面回眸", title: "面具一戴说上就上",
+    cost: 2, atk: 3, hp: 1,
+    keywords: ["charge"],
+    flavor: "狐狸面具往头上一推，双马尾一甩，人已经冲出去了。"
+  },
+  {
+    id: "sandyowo", art: "assets/sandyowo3.jpg",
+    name: "水母帽", title: "像塑膠袋的水母",
+    cost: 3, atk: 0, hp: 6,
+    keywords: ["taunt"],
+    flavor: "软乎乎的水母漂在路中间，打不痛，也挤不过去。"
+  },
+  {
+    id: "wuyuan", art: "assets/wuyuandev.jpg",
+    name: "和服猫耳", title: "温润如玉",
+    cost: 3, atk: 3, hp: 4,
+    keywords: [], battlecry: { type: "heal_hero", amount: 1 },
+    flavor: "呆毛一颤，和服一整——见者心安，如沐春风。"
   },
 ];
