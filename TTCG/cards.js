@@ -1,4 +1,4 @@
-// TTCG 卡牌数据 —— 80 张头像重绘卡
+// TTCG 卡牌数据 —— 90 张头像重绘卡
 // keywords: taunt(嘲讽) / charge(冲锋) / shield(圣盾) / lifesteal(吸血)
 //           poison(剧毒) / windfury(风怒) / grow(成长)
 // battlecry / deathrattle: { type, amount }
@@ -565,5 +565,75 @@ const CARD_POOL = [
     cost: 3, atk: 3, hp: 4,
     keywords: [], battlecry: { type: "heal_hero", amount: 1 },
     flavor: "呆毛一颤，和服一整——见者心安，如沐春风。"
+  },
+  {
+    id: "yyyuux", art: "assets/Yyyuux_ID.jpg",
+    name: "观星者", title: "望远镜与月牙",
+    cost: 2, atk: 0, hp: 4,
+    keywords: [], battlecry: { type: "draw", amount: 1 },
+    flavor: "把镜筒对准夜空，总能看到一点新东西。"
+  },
+  {
+    id: "yuni", art: "assets/yunilove01.jpg",
+    name: "十字围巾猫", title: "慵懒的风",
+    cost: 4, atk: 3, hp: 4,
+    keywords: ["lifesteal"],
+    flavor: "围巾裹好，眼睛半睁——看起来懒洋洋，咬人可不含糊。"
+  },
+  {
+    id: "yokina", art: "assets/yokina204207.jpg",
+    name: "幽灵相伴", title: "身边飘着小家伙",
+    cost: 4, atk: 3, hp: 4,
+    keywords: [], deathrattle: { type: "damage_random", amount: 2 },
+    flavor: "她倒下的时候，身边的小幽灵替她讨回了公道。"
+  },
+  {
+    id: "kalin", art: "assets/Kalin_1124.jpg",
+    name: "惊讶脸红", title: "喵？！",
+    cost: 2, atk: 2, hp: 4,
+    keywords: [], battlecry: { type: "heal_hero", amount: 1 },
+    flavor: "圆圆的眼睛看着你，脸颊唰地红了——被治愈的反而是你。"
+  },
+  {
+    id: "sypshen", art: "assets/Sypshenlipu.jpg",
+    name: "我家小咪", title: "如假包换的真猫",
+    cost: 4, atk: 4, hp: 3,
+    keywords: ["windfury"],
+    flavor: "「欸？我家小咪可以嗎」——可以，而且猫拳一秒两发。"
+  },
+  {
+    id: "aixipi", art: "assets/AiXipi.jpg",
+    name: "三瓣花兔", title: "睡着的涂鸦",
+    cost: 1, atk: 0, hp: 4,
+    keywords: ["taunt"],
+    flavor: "分不清是花还是兔子，反正它睡在路中间，谁也过不去。"
+  },
+  {
+    id: "realhity", art: "assets/Realhity233.jpg",
+    name: "开黑邀请", title: "Switch 分你一半",
+    cost: 4, atk: 3, hp: 4,
+    keywords: [], battlecry: { type: "draw", amount: 1 },
+    flavor: "她扛着 Switch 冲你眨眼：「来一把？」你的手牌多了一张。"
+  },
+  {
+    id: "stukdee", art: "assets/StukdeeGorye.jpg",
+    name: "红狐涂鸦", title: "三笔小狐狸",
+    cost: 1, atk: 1, hp: 1,
+    keywords: ["charge"],
+    flavor: "红耳朵红围脖，嗖地窜出去——涂鸦也有涂鸦的速度。"
+  },
+  {
+    id: "huanxs", art: "assets/huanxiaoshuai.jpg",
+    name: "顿悟闪光", title: "哲学家与爆闪的屏幕",
+    cost: 5, atk: 4, hp: 5,
+    keywords: [], battlecry: { type: "damage_all", amount: 1 },
+    flavor: "屏幕炸出一团白光——他悟了，对面全体被真理灼伤。"
+  },
+  {
+    id: "sisten", art: "assets/sistelevesn8964.jpg",
+    name: "自信一拳", title: "挑眉衬衫男",
+    cost: 3, atk: 5, hp: 2,
+    keywords: [],
+    flavor: "背头一梳，衬衫一穿，挑眉一笑——这一拳很有精神。"
   },
 ];
