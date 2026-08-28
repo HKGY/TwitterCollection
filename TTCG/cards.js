@@ -1,4 +1,4 @@
-// TTCG 卡牌数据 —— 90 张头像重绘卡
+// TTCG 卡牌数据 —— 100 张头像重绘卡
 // keywords: taunt(嘲讽) / charge(冲锋) / shield(圣盾) / lifesteal(吸血)
 //           poison(剧毒) / windfury(风怒) / grow(成长)
 // battlecry / deathrattle: { type, amount }
@@ -635,5 +635,75 @@ const CARD_POOL = [
     cost: 3, atk: 5, hp: 2,
     keywords: [],
     flavor: "背头一梳，衬衫一穿，挑眉一笑——这一拳很有精神。"
+  },
+  {
+    id: "hitoru", art: "assets/fuan09adeline_.jpg",
+    name: "圆环项圈", title: "慵懒地看着你",
+    cost: 2, atk: 2, hp: 3,
+    keywords: [],
+    flavor: "头发翘得乱七八糟，眼神却稳得很。"
+  },
+  {
+    id: "atcvstac", art: "assets/ATCVSTAC.jpg",
+    name: "抱枕观众", title: "凑凑热闹喵",
+    cost: 3, atk: 2, hp: 5,
+    keywords: [], battlecry: { type: "heal_hero", amount: 1 },
+    flavor: "抱紧软软的抱枕看戏，顺便把安心感分你一点。"
+  },
+  {
+    id: "nuo", art: "assets/Nuo0825.jpg",
+    name: "捂脸羞逃", title: "不好意思再看了",
+    cost: 3, atk: 3, hp: 4,
+    keywords: [], deathrattle: { type: "draw", amount: 1 },
+    flavor: "捂着脸从场上溜走，临走前把攻略笔记塞给了你。"
+  },
+  {
+    id: "xinzhi", art: "assets/195_sm.jpg",
+    name: "信纸凝视", title: "截图里走出来的人",
+    cost: 4, atk: 4, hp: 4,
+    keywords: [], battlecry: { type: "freeze_random", amount: 1 },
+    flavor: "十字发卡，斗篷链条，面无表情——被她看着，你僵住了。"
+  },
+  {
+    id: "nix24", art: "assets/_Nix24_.jpg",
+    name: "爪爪手套", title: "铃铛响了",
+    cost: 3, atk: 3, hp: 3,
+    keywords: ["lifesteal"],
+    flavor: "爪爪挠你一下，再舔舔爪子——回血了。"
+  },
+  {
+    id: "oldsong", art: "assets/ClassicOldSong.jpg",
+    name: "墨镜经典", title: "上车还来得及",
+    cost: 4, atk: 5, hp: 3,
+    keywords: ["charge"],
+    flavor: "墨镜往头上一推：「现在上车还来得及吗」——来得及，发车！"
+  },
+  {
+    id: "jiaarpk", art: "assets/JIA_ARPK.jpg",
+    name: "双手比心", title: "爱心发射",
+    cost: 2, atk: 1, hp: 3,
+    keywords: [], battlecry: { type: "buff_random_ally", amount: 1 },
+    flavor: "手指拼成一颗心，biu 地发射给队友。"
+  },
+  {
+    id: "dasda", art: "assets/dasda2026.jpg",
+    name: "根号π", title: "优雅落座",
+    cost: 5, atk: 4, hp: 6,
+    keywords: [], battlecry: { type: "heal_hero", amount: 2 },
+    flavor: "长裙铺开，叶饰生辉——无理数也可以很优雅。"
+  },
+  {
+    id: "tisn", art: "assets/tisn360587.jpg",
+    name: "霸王龙咆哮", title: "仰天大笑冲出去",
+    cost: 5, atk: 5, hp: 4,
+    keywords: ["charge"],
+    flavor: "「我是霸王龙！」话音未落，人已经撞进了对面场地。"
+  },
+  {
+    id: "antum", art: "assets/xX_Antum_Xx.jpg",
+    name: "善雅猫", title: "kind and elegant",
+    cost: 2, atk: 2, hp: 2,
+    keywords: [], deathrattle: { type: "damage_face", amount: 1 },
+    flavor: "自称善良又优雅的猫。退场时留下的手势可一点都不优雅。"
   },
 ];
