@@ -45,8 +45,16 @@ function makeMinion(card) {
     poison: kw.includes("poison"),
     grow: kw.includes("grow"),
     shield: kw.includes("shield"),        // 圣盾：抵挡一次伤害
+    stealth: kw.includes("stealth"),      // 潜行：不能被攻击选中，攻击后现身
+    enrage: kw.includes("enrage"),        // 激怒：受伤时攻击力+2
+    noFace: false,                        // 突袭入场回合：不能攻击英雄
     frozen: false,                        // 冻结：下回合无法攻击
   };
+}
+
+// 当前攻击力（激怒：受伤时+2）
+function getAtk(m) {
+  return m.atk + (m.enrage && m.hp < m.maxHp ? 2 : 0);
 }
 
 // 对随从造成伤害的统一入口：处理圣盾与剧毒；返回实际造成的伤害
@@ -176,6 +184,7 @@ function startTurn(p) {
     } else {
       m.attacksLeft = m.windfury ? 2 : 1;
     }
+    m.noFace = false; // 突袭限制只持续入场回合
     if (m.grow) {
       m.atk += 1; m.hp += 1; m.maxHp += 1;
       addLog(`「${m.card.name}」成长为 ${m.atk}/${m.hp}。`);
@@ -189,7 +198,8 @@ function startTurn(p) {
 
 function endTurn() {
   if (game.over || game.turn !== 0) return;
-  startTurn(1);
+  endOfTurn(0);
+  if (!game.over) startTurn(1);
 }
 
 function checkGameOver() {
@@ -217,16 +227,17 @@ function playCard(p, handIndex) {
   pl.hand.splice(handIndex, 1);
   const m = makeMinion(card);
   if (card.keywords.includes("charge")) m.attacksLeft = m.windfury ? 2 : 1;
+  if (card.keywords.includes("rush")) { m.attacksLeft = m.windfury ? 2 : 1; m.noFace = true; }
   pl.board.push(m);
   addLog(`${pl.name} 打出了「${card.name}」（${card.atk}/${card.hp}）。`, p === 0 ? "good" : "");
 
-  if (card.battlecry) resolveEffect(p, card.battlecry, `「${card.name}」的战吼`);
+  if (card.battlecry) resolveEffect(p, card.battlecry, `「${card.name}」的战吼`, card);
   cleanupDeaths();
   checkGameOver();
   return true;
 }
 
-function resolveEffect(owner, eff, label) {
+function resolveEffect(owner, eff, label, sourceCard) {
   const me = game.players[owner];
   const foe = game.players[1 - owner];
   switch (eff.type) {
@@ -288,7 +299,44 @@ function resolveEffect(owner, eff, label) {
       }
       break;
     }
+    case "summon": { // 召唤衍生随从（沿用来源卡面）
+      if (me.board.length < MAX_BOARD && sourceCard) {
+        const tok = makeMinion({
+          id: sourceCard.id + "_t", art: sourceCard.art,
+          name: eff.name || (sourceCard.name + "·残影"), title: "衍生物",
+          cost: 0, atk: eff.atk, hp: eff.hp, keywords: eff.kw || [],
+          flavor: "",
+        });
+        me.board.push(tok);
+        addLog(`${label}：召唤了一个 ${eff.atk}/${eff.hp} 的「${tok.card.name}」。`, "good");
+      } else {
+        addLog(`${label}：场上没有空位。`);
+      }
+      break;
+    }
+    case "shield_random_ally": {
+      const cands = me.board.filter(t => !t.shield && t.hp > 0);
+      if (cands.length > 0) {
+        const t = cands[Math.floor(Math.random() * cands.length)];
+        t.shield = true;
+        addLog(`${label}：「${t.card.name}」获得了圣盾！`, "good");
+      } else {
+        addLog(`${label}：没有可以授予圣盾的目标。`);
+      }
+      break;
+    }
   }
+}
+
+// 回合结束触发：结算 p 方场上随从的 turnEnd 效果
+function endOfTurn(p) {
+  game.players[p].board.slice().forEach(m => {
+    if (m.card.turnEnd && m.hp > 0) {
+      resolveEffect(p, m.card.turnEnd, `「${m.card.name}」的回合结束效果`, m.card);
+    }
+  });
+  cleanupDeaths();
+  checkGameOver();
 }
 
 function cleanupDeaths() {
@@ -302,7 +350,7 @@ function cleanupDeaths() {
         if (m.hp <= 0) {
           pl.board.splice(i, 1);
           addLog(`「${m.card.name}」倒下了。`);
-          if (m.card.deathrattle) resolveEffect(p, m.card.deathrattle, `「${m.card.name}」的亡语`);
+          if (m.card.deathrattle) resolveEffect(p, m.card.deathrattle, `「${m.card.name}」的亡语`, m.card);
           died = true;
         }
       }
@@ -316,9 +364,15 @@ function enemyTaunts(p) {
   return game.players[1 - p].board.filter(m => m.taunt);
 }
 
-function canTarget(p, target) {
-  // target: {type:"minion", uid} | {type:"face"}
-  const taunts = enemyTaunts(p);
+function canTarget(p, target, attacker) {
+  // target: {type:"minion", uid} | {type:"face"}；attacker 用于突袭限制判定
+  const foe = game.players[1 - p];
+  if (target.type === "face" && attacker && attacker.noFace) return false; // 突袭：入场回合不能打脸
+  if (target.type === "minion") {
+    const t = foe.board.find(m => m.uid === target.uid);
+    if (!t || t.stealth) return false; // 潜行：不能被攻击选中
+  }
+  const taunts = enemyTaunts(p).filter(m => !m.stealth);
   if (taunts.length === 0) return true;
   return target.type === "minion" && taunts.some(m => m.uid === target.uid);
 }
@@ -327,23 +381,25 @@ function attack(p, attackerUid, target) {
   const pl = game.players[p];
   const foe = game.players[1 - p];
   const atkM = pl.board.find(m => m.uid === attackerUid);
-  if (!atkM || atkM.attacksLeft <= 0 || atkM.atk <= 0 || game.over) return;
-  if (!canTarget(p, target)) return;
+  if (!atkM || atkM.attacksLeft <= 0 || getAtk(atkM) <= 0 || game.over) return;
+  if (!canTarget(p, target, atkM)) return;
 
   atkM.attacksLeft -= 1;
+  if (atkM.stealth) { atkM.stealth = false; addLog(`「${atkM.card.name}」现身了！`); }
   if (target.type === "face") {
-    foe.hp -= atkM.atk;
-    addLog(`「${atkM.card.name}」攻击${foe.name}，造成 ${atkM.atk} 点伤害！`, p === 0 ? "good" : "bad");
+    foe.hp -= getAtk(atkM);
+    addLog(`「${atkM.card.name}」攻击${foe.name}，造成 ${getAtk(atkM)} 点伤害！`, p === 0 ? "good" : "bad");
     if (atkM.lifesteal) {
-      const healed = healHero(p, atkM.atk);
+      const healed = healHero(p, getAtk(atkM));
       if (healed > 0) addLog(`吸血：${pl.name}回复 ${healed} 点生命。`, "good");
     }
   } else {
     const defM = foe.board.find(m => m.uid === target.uid);
     if (!defM) { atkM.attacksLeft += 1; return; }
     addLog(`「${atkM.card.name}」⚔「${defM.card.name}」。`);
-    const dealt = damageMinion(defM, atkM.atk, atkM);
-    const taken = damageMinion(atkM, defM.atk, defM);
+    const aAtk = getAtk(atkM), dAtk = getAtk(defM); // 先取快照：激怒不影响本次互殴
+    const dealt = damageMinion(defM, aAtk, atkM);
+    const taken = damageMinion(atkM, dAtk, defM);
     if (atkM.lifesteal && dealt > 0) {
       const healed = healHero(p, dealt);
       if (healed > 0) addLog(`吸血：${pl.name}回复 ${healed} 点生命。`, "good");
@@ -366,6 +422,8 @@ function aiTurn() {
     if (game.sid !== sid) return;
     aiPlaySeq(sid, () => aiAttackStep(sid, () => {
       if (game.sid !== sid || game.over) return;
+      endOfTurn(1);
+      if (game.over) return;
       setTimeout(() => { if (game.sid === sid) startTurn(0); }, 400);
     }));
   }, 500);
@@ -416,6 +474,10 @@ function aiCardBonus(card) {
     if (ai.hp <= threat + 5) b += 12; // 快被打死了，急需人墙
   }
   if (card.keywords.includes("charge")) b += me.hp <= 12 ? 8 : 2; // 抢血
+  if (card.keywords.includes("rush")) b += me.board.length > 0 ? 5 : -3; // 有目标才值得突袭
+  if (card.keywords.includes("stealth")) b += 3; // 潜行随从更容易活到下回合
+  if (card.keywords.includes("enrage")) b += 2;
+  if (card.turnEnd) b += 4; // 回合结束效果是持续价值
   return b;
 }
 
@@ -466,63 +528,71 @@ function aiAttackStep(sid, done) {
   if (game.over || game.sid !== sid) return;
   const ai = game.players[1];
   const me = game.players[0];
-  const attackers = ai.board.filter(m => m.attacksLeft > 0 && m.atk > 0);
+  const attackers = ai.board.filter(m => m.attacksLeft > 0 && getAtk(m) > 0);
   if (attackers.length === 0) { done(); return; }
 
-  const taunts = me.board.filter(m => m.taunt);
-  const totalAtk = attackers.reduce((s, m) => s + m.atk * m.attacksLeft, 0);
+  const taunts = me.board.filter(m => m.taunt && !m.stealth);
+  const targets = me.board.filter(m => !m.stealth); // 潜行随从无法被选中
+  const faceable = attackers.filter(m => !m.noFace);
+  const totalAtk = faceable.reduce((s, m) => s + getAtk(m) * m.attacksLeft, 0);
   let atkM = null, target = null;
 
   if (taunts.length === 0 && totalAtk >= me.hp) {
-    // 斩杀线：全部打脸
-    atkM = attackers[0];
+    // 斩杀线：全部打脸（突袭随从帮不上忙）
+    atkM = faceable[0];
     target = { type: "face" };
   } else if (taunts.length > 0) {
     // 解嘲讽：先杀血最少的；优先用能击杀且自己不死的最小攻击者
     const t = taunts.slice().sort((a, b) => a.hp - b.hp)[0];
-    const killers = attackers.filter(m => m.poison || m.atk >= t.hp);
-    const safe = killers.filter(m => m.shield || (t.atk < m.hp && !t.poison)).sort((a, b) => a.atk - b.atk);
+    const killers = attackers.filter(m => m.poison || getAtk(m) >= t.hp);
+    const safe = killers.filter(m => m.shield || (getAtk(t) < m.hp && !t.poison)).sort((a, b) => getAtk(a) - getAtk(b));
     atkM = safe[0]
-      || killers.sort((a, b) => b.atk - a.atk)[0]
-      || attackers.slice().sort((a, b) => b.atk - a.atk)[0];
+      || killers.sort((a, b) => getAtk(b) - getAtk(a))[0]
+      || attackers.slice().sort((a, b) => getAtk(b) - getAtk(a))[0];
     target = { type: "minion", uid: t.uid };
   } else {
     // 自由选择：评估所有(攻击者, 目标)组合，找收益超过打脸机会成本的最佳换血
-    const threat = me.board.reduce((s, t) => s + t.atk, 0);
+    const threat = me.board.reduce((s, t) => s + getAtk(t), 0);
     const desperate = ai.hp <= threat + 2; // 再不清场，下回合可能被打死
     let best = null;
     for (const m of attackers) {
-      const faceCost = desperate ? 0 : m.atk * (me.hp <= 12 ? 3.5 : 2.2); // 打脸的机会成本
-      for (const t of me.board) {
+      // 打脸的机会成本；突袭随从打不了脸，换血没有机会成本
+      const faceCost = (desperate || m.noFace) ? 0 : getAtk(m) * (me.hp <= 12 ? 3.5 : 2.2);
+      for (const t of targets) {
         if (t.shield) {
           // 有圣盾的目标一刀杀不掉：只考虑用小随从安全破盾
-          if (m.atk <= 2 && t.atk < m.hp) {
-            const v = t.atk * 2 + 4;
+          if (getAtk(m) <= 2 && getAtk(t) < m.hp) {
+            const v = getAtk(t) * 2 + 4;
             if (v > faceCost && (!best || v > best.v)) best = { m, t, v };
           }
           continue;
         }
-        if (!(m.poison || m.atk >= t.hp)) continue;    // 杀不掉的不换（剧毒碰到就算杀）
-        const survives = m.shield || (t.atk < m.hp && !t.poison); // 圣盾可挡反伤；对面剧毒必死
-        let v = t.atk * 3 + t.card.cost * 2;          // 清掉威胁的收益
-        v += survives ? 6 : -m.card.cost * 2;          // 白吃加分，阵亡扣分
-        if (!m.poison) v -= Math.max(0, m.atk - t.hp); // 惩罚大牛换小虾（剧毒不算浪费）
+        if (!(m.poison || getAtk(m) >= t.hp)) continue; // 杀不掉的不换（剧毒碰到就算杀）
+        const survives = m.shield || (getAtk(t) < m.hp && !t.poison); // 圣盾可挡反伤；对面剧毒必死
+        let v = getAtk(t) * 3 + t.card.cost * 2;       // 清掉威胁的收益
+        v += survives ? 6 : -m.card.cost * 2;           // 白吃加分，阵亡扣分
+        if (!m.poison) v -= Math.max(0, getAtk(m) - t.hp); // 惩罚大牛换小虾（剧毒不算浪费）
         if (v > faceCost && (!best || v > best.v)) best = { m, t, v };
       }
     }
     if (best) {
       atkM = best.m;
       target = { type: "minion", uid: best.t.uid };
-    } else if (desperate && me.board.length > 0) {
+    } else if (desperate && targets.length > 0) {
       // 绝境：即使一刀杀不死，也要往最大的威胁身上砍
-      const t = me.board.slice().sort((a, b) => b.atk - a.atk)[0];
-      atkM = attackers.slice().sort((a, b) => b.atk - a.atk)[0];
+      const t = targets.slice().sort((a, b) => getAtk(b) - getAtk(a))[0];
+      atkM = attackers.slice().sort((a, b) => getAtk(b) - getAtk(a))[0];
       target = { type: "minion", uid: t.uid };
-    } else {
-      atkM = attackers.slice().sort((a, b) => b.atk - a.atk)[0];
+    } else if (faceable.length > 0) {
+      atkM = faceable.slice().sort((a, b) => getAtk(b) - getAtk(a))[0];
       target = { type: "face" };
+    } else {
+      // 只剩突袭随从且无可选目标：本回合无事可做
+      attackers.forEach(m => (m.attacksLeft = 0));
+      done(); return;
     }
   }
+  if (!atkM) { done(); return; }
 
   const before = atkM.attacksLeft;
   attack(1, atkM.uid, target);
@@ -540,6 +610,7 @@ const $ = sel => document.querySelector(sel);
 const KW_NAMES = {
   taunt: "嘲讽", charge: "冲锋", shield: "圣盾", lifesteal: "吸血",
   poison: "剧毒", windfury: "风怒", grow: "成长",
+  rush: "突袭", stealth: "潜行", enrage: "激怒",
 };
 
 function cardEffectText(card) {
@@ -548,6 +619,7 @@ function cardEffectText(card) {
   if (kw.length) parts.push(kw.join(""));
   if (card.battlecry) parts.push("战吼：" + effectDesc(card.battlecry));
   if (card.deathrattle) parts.push("亡语：" + effectDesc(card.deathrattle));
+  if (card.turnEnd) parts.push("回合结束：" + effectDesc(card.turnEnd));
   return parts.join("　");
 }
 
@@ -573,20 +645,22 @@ function minionEl(m, side) {
   if (m.taunt) el.classList.add("taunt");
   if (m.shield) el.classList.add("shielded");
   if (m.frozen) el.classList.add("frozen");
+  if (m.stealth) el.classList.add("stealthy");
+  const enraged = m.enrage && m.hp < m.maxHp;
   if (side === 0 && m.attacksLeft > 0 && game.turn === 0) el.classList.add("ready");
   if (game.selected === m.uid) el.classList.add("selected");
   el.innerHTML = `
     <img src="${m.card.art}" alt="">
     <div class="mname">${m.card.name}</div>
-    <div class="stats"><span class="atk">${m.atk}</span><span class="hp ${m.hp < m.maxHp ? "hurt" : ""}">${m.hp}</span></div>
+    <div class="stats"><span class="atk ${enraged ? "enraged" : ""}">${getAtk(m)}</span><span class="hp ${m.hp < m.maxHp ? "hurt" : ""}">${m.hp}</span></div>
   `;
-  el.onmouseenter = () => showPreview(m.card, m.atk, m.hp);
+  el.onmouseenter = () => showPreview(m.card, getAtk(m), m.hp);
   el.onmouseleave = hidePreview;
 
   if (side === 0) {
     el.onclick = () => {
       if (game.turn !== 0 || game.over) return;
-      if (m.attacksLeft > 0 && m.atk > 0) {
+      if (m.attacksLeft > 0 && getAtk(m) > 0) {
         game.selected = game.selected === m.uid ? null : m.uid;
         render();
       }
@@ -594,8 +668,12 @@ function minionEl(m, side) {
   } else {
     el.onclick = () => {
       if (game.turn !== 0 || game.over || game.selected === null) return;
+      const attacker = game.players[0].board.find(x => x.uid === game.selected);
       const t = { type: "minion", uid: m.uid };
-      if (!canTarget(0, t)) { addLog("必须先攻击嘲讽随从！", "bad"); render(); return; }
+      if (!canTarget(0, t, attacker)) {
+        addLog(m.stealth ? "潜行随从无法被选中！" : "必须先攻击嘲讽随从！", "bad");
+        render(); return;
+      }
       attack(0, game.selected, t);
       game.selected = null;
       render();
@@ -642,6 +720,8 @@ function effectDesc(eff) {
     case "buff_all_atk": return `我方随从攻击力 +${eff.amount}`;
     case "buff_random_ally": return `随机友方随从获得 +${eff.amount}/+${eff.amount}`;
     case "freeze_random": return `冻结一个随机敌方随从`;
+    case "summon": return `召唤一个 ${eff.atk}/${eff.hp} 的「${eff.name || "残影"}」`;
+    case "shield_random_ally": return `使一个随机友方随从获得圣盾`;
     default: return "";
   }
 }
@@ -671,9 +751,10 @@ function render() {
   const hand = $("#my-hand"); hand.innerHTML = "";
   me.hand.forEach((c, i) => hand.appendChild(handCardEl(c, i)));
 
-  // 敌方英雄可作为攻击目标
+  // 敌方英雄可作为攻击目标（考虑突袭限制）
   const aiHero = $("#ai-hero");
-  aiHero.classList.toggle("targetable", game.turn === 0 && game.selected !== null && canTarget(0, { type: "face" }));
+  const selM = game.selected !== null ? me.board.find(x => x.uid === game.selected) : null;
+  aiHero.classList.toggle("targetable", game.turn === 0 && !!selM && canTarget(0, { type: "face" }, selM));
 
   $("#end-turn").disabled = game.turn !== 0 || game.over;
 
@@ -695,7 +776,11 @@ window.addEventListener("DOMContentLoaded", () => {
   $("#end-turn").onclick = endTurn;
   $("#ai-hero").onclick = () => {
     if (game.turn !== 0 || game.over || game.selected === null) return;
-    if (!canTarget(0, { type: "face" })) { addLog("必须先攻击嘲讽随从！", "bad"); render(); return; }
+    const attacker = game.players[0].board.find(x => x.uid === game.selected);
+    if (!canTarget(0, { type: "face" }, attacker)) {
+      addLog(attacker && attacker.noFace ? "突袭随从入场回合不能攻击英雄！" : "必须先攻击嘲讽随从！", "bad");
+      render(); return;
+    }
     attack(0, game.selected, { type: "face" });
     game.selected = null;
     render();

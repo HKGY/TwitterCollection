@@ -1,9 +1,10 @@
 // TTCG 卡牌数据 —— 100 张头像重绘卡
 // keywords: taunt(嘲讽) / charge(冲锋) / shield(圣盾) / lifesteal(吸血)
 //           poison(剧毒) / windfury(风怒) / grow(成长)
-// battlecry / deathrattle: { type, amount }
+// keywords 新增: rush(突袭) / stealth(潜行) / enrage(激怒,受伤+2攻)
+// battlecry / deathrattle / turnEnd(回合结束): { type, amount }
 //   type: heal_hero | draw | damage_random | damage_all | damage_face
-//       | buff_all_atk | buff_random_ally | freeze_random
+//       | buff_all_atk | buff_random_ally | freeze_random | summon | shield_random_ally
 
 const CARD_POOL = [
   {
@@ -93,9 +94,9 @@ const CARD_POOL = [
   {
     id: "nankyu", art: "assets/NankyuSeiichi.jpg",
     name: "困困猫", title: "睡着也能挡刀",
-    cost: 3, atk: 2, hp: 5,
-    keywords: ["taunt"],
-    flavor: "……嗯……再打五分钟……"
+    cost: 3, atk: 2, hp: 4,
+    keywords: ["taunt"], deathrattle: { type: "summon", atk: 1, hp: 1, name: "梦中猫" },
+    flavor: "……嗯……再打五分钟……倒下之后，梦里的她还在继续挡。"
   },
   {
     id: "oppofans", art: "assets/OPPOFANS114514.jpg",
@@ -141,10 +142,10 @@ const CARD_POOL = [
   },
   {
     id: "yume", art: "assets/Yume33550336.jpg",
-    name: "梦境音符", title: "开场 BGM",
+    name: "梦境音符", title: "循环播放中",
     cost: 3, atk: 0, hp: 4,
-    keywords: [], battlecry: { type: "buff_all_atk", amount: 1 },
-    flavor: "月牙为谱，星星为拍，全场士气 +1。"
+    keywords: [], turnEnd: { type: "buff_random_ally", amount: 1 },
+    flavor: "月牙为谱，星星为拍——BGM 不停，士气就一直在涨。"
   },
   {
     id: "oquery", art: "assets/__oQuery.jpg",
@@ -274,10 +275,10 @@ const CARD_POOL = [
   },
   {
     id: "tennjou", art: "assets/tennjoukouki.jpg",
-    name: "皇冠公主", title: "王室仪仗",
-    cost: 5, atk: 4, hp: 6,
-    keywords: ["taunt"],
-    flavor: "眨一只眼是礼节，挡在你面前是职责。"
+    name: "皇冠公主", title: "王室的庇护",
+    cost: 5, atk: 4, hp: 5,
+    keywords: ["taunt"], battlecry: { type: "shield_random_ally", amount: 1 },
+    flavor: "眨一只眼是礼节，挡在你面前是职责——王冠的光辉庇护着同伴。"
   },
   {
     id: "cirno9", art: "assets/locklo01.jpg",
@@ -297,8 +298,8 @@ const CARD_POOL = [
     id: "atrice", art: "assets/AtriceUHB.jpg",
     name: "转载禁止结界", title: "無断転載禁止",
     cost: 2, atk: 0, hp: 4,
-    keywords: ["taunt"],
-    flavor: "REPOST IS PROHIBITED——这行字本身就是一堵墙。"
+    keywords: ["taunt"], deathrattle: { type: "freeze_random", amount: 1 },
+    flavor: "REPOST IS PROHIBITED——胆敢拆结界的人，被当场冻住了。"
   },
   {
     id: "fiona", art: "assets/Fiona_Coyn3.jpg",
@@ -353,15 +354,15 @@ const CARD_POOL = [
     id: "xcate", art: "assets/xcate329.jpg",
     name: "银发徽章", title: "沉静的注视",
     cost: 6, atk: 5, hp: 7,
-    keywords: ["taunt"],
-    flavor: "她不说话，只是站在那里，谁也过不去。"
+    keywords: ["taunt"], turnEnd: { type: "damage_random", amount: 1 },
+    flavor: "她不说话，只是站在那里。徽章的微光每晚灼烧来犯者。"
   },
   {
     id: "bakayuanyu", art: "assets/BAKA_Yuanyu.jpg",
     name: "无语小鸭", title: "一言难尽",
-    cost: 2, atk: 3, hp: 2,
-    keywords: [],
-    flavor: "冷汗流下来，头顶的小鸭子替她把想说的话咽了回去。"
+    cost: 2, atk: 2, hp: 3,
+    keywords: ["enrage"],
+    flavor: "冷汗流下来，小鸭子替她忍着——忍到极限就会爆发。"
   },
   {
     id: "haige", art: "assets/HaigeSenmokkou.jpg",
@@ -416,15 +417,15 @@ const CARD_POOL = [
     id: "akari", art: "assets/saint_Akari.jpg",
     name: "就不做了", title: "睡大觉～",
     cost: 5, atk: 2, hp: 8,
-    keywords: ["taunt"],
-    flavor: "「就不做了，睡大觉～」裹紧被子，谁来都不好使。"
+    keywords: ["taunt"], turnEnd: { type: "heal_hero", amount: 1 },
+    flavor: "「就不做了，睡大觉～」她睡得香，大家跟着安心。"
   },
   {
     id: "tcdwww", art: "assets/tcdwww.jpg",
     name: "抿嘴委屈", title: "一言不发",
-    cost: 4, atk: 5, hp: 4,
-    keywords: [],
-    flavor: "她什么都没说，只是抿了抿嘴。然后出手很重。"
+    cost: 4, atk: 4, hp: 5,
+    keywords: ["enrage"],
+    flavor: "她什么都没说，只是抿了抿嘴。越委屈，出手越重。"
   },
   {
     id: "jom", art: "assets/jom123ab.jpg",
@@ -436,9 +437,9 @@ const CARD_POOL = [
   {
     id: "inoueqd", art: "assets/inoueqd.jpg",
     name: "眼镜绅士", title: "可靠的大人",
-    cost: 4, atk: 4, hp: 4,
-    keywords: [],
-    flavor: "西装笔挺，笑容和煦——评论区里少见的正装出席。"
+    cost: 4, atk: 3, hp: 5,
+    keywords: [], turnEnd: { type: "heal_hero", amount: 1 },
+    flavor: "西装笔挺，笑容和煦——每到一天结束，都会关照大家一句。"
   },
   {
     id: "yueli", art: "assets/yueliclaudius.jpg",
@@ -450,9 +451,9 @@ const CARD_POOL = [
   {
     id: "nancy", art: "assets/Nancytihaya.jpg",
     name: "哇呀这是", title: "张开双臂冲过来",
-    cost: 2, atk: 2, hp: 2,
-    keywords: ["charge"],
-    flavor: "「哇呀这是！」话没说完，人已经扑到面前了。"
+    cost: 2, atk: 2, hp: 3,
+    keywords: ["rush"],
+    flavor: "「哇呀这是！」她张开双臂扑向人群——先抱住离得最近的那个。"
   },
   {
     id: "seiran", art: "assets/Seiran____02.jpg",
@@ -471,9 +472,9 @@ const CARD_POOL = [
   {
     id: "dzlwi", art: "assets/dzlwi.jpg",
     name: "冬之泪", title: "结冰的目光",
-    cost: 4, atk: 3, hp: 5,
-    keywords: [], battlecry: { type: "freeze_random", amount: 1 },
-    flavor: "冬天的眼泪还没落地就结成了冰，落在谁身上谁就动不了。"
+    cost: 4, atk: 2, hp: 4,
+    keywords: [], turnEnd: { type: "freeze_random", amount: 1 },
+    flavor: "只要她还站在那里，每晚都有一滴眼泪落下结冰，冻住一个人。"
   },
   {
     id: "poca", art: "assets/Poca2381.jpg",
@@ -485,9 +486,9 @@ const CARD_POOL = [
   {
     id: "juzi", art: "assets/juzi_you.jpg",
     name: "帽中魔女", title: "帽子里有猫耳",
-    cost: 5, atk: 5, hp: 5,
-    keywords: [],
-    flavor: "宽大的魔女帽里藏着耳朵——藏得住耳朵，藏不住实力。"
+    cost: 5, atk: 4, hp: 5,
+    keywords: ["stealth"],
+    flavor: "宽檐帽往下一压，整个人藏进阴影里——你根本找不到她。"
   },
   {
     id: "bootjenna", art: "assets/BootJenna.jpg",
@@ -533,10 +534,10 @@ const CARD_POOL = [
   },
   {
     id: "yisemly", art: "assets/Yisemly.jpg",
-    name: "借物少女", title: "吉卜力的目光",
+    name: "借物少女", title: "不能被看见",
     cost: 4, atk: 3, hp: 5,
-    keywords: [], battlecry: { type: "draw", amount: 1 },
-    flavor: "从小人的世界借来一件小东西，也借来一点点智慧。"
+    keywords: ["stealth"],
+    flavor: "借物一族的铁则：绝对不能被人类看见。"
   },
   {
     id: "yumeoibito", art: "assets/Yumeoibito76.jpg",
@@ -555,9 +556,9 @@ const CARD_POOL = [
   {
     id: "sandyowo", art: "assets/sandyowo3.jpg",
     name: "水母帽", title: "像塑膠袋的水母",
-    cost: 3, atk: 0, hp: 6,
-    keywords: ["taunt"],
-    flavor: "软乎乎的水母漂在路中间，打不痛，也挤不过去。"
+    cost: 3, atk: 0, hp: 5,
+    keywords: ["taunt"], deathrattle: { type: "summon", atk: 1, hp: 2, name: "小水母" },
+    flavor: "软乎乎的水母漂在路中间。就算散开了——水母是会分裂的。"
   },
   {
     id: "wuyuan", art: "assets/wuyuandev.jpg",
@@ -610,10 +611,10 @@ const CARD_POOL = [
   },
   {
     id: "realhity", art: "assets/Realhity233.jpg",
-    name: "开黑邀请", title: "Switch 分你一半",
-    cost: 4, atk: 3, hp: 4,
-    keywords: [], battlecry: { type: "draw", amount: 1 },
-    flavor: "她扛着 Switch 冲你眨眼：「来一把？」你的手牌多了一张。"
+    name: "开黑邀请", title: "Switch 递过来",
+    cost: 4, atk: 4, hp: 4,
+    keywords: ["rush"],
+    flavor: "她扛着 Switch 冲你眨眼：「来一把？」开黑第一件事：清兵。"
   },
   {
     id: "stukdee", art: "assets/StukdeeGorye.jpg",
@@ -632,23 +633,23 @@ const CARD_POOL = [
   {
     id: "sisten", art: "assets/sistelevesn8964.jpg",
     name: "自信一拳", title: "挑眉衬衫男",
-    cost: 3, atk: 5, hp: 2,
-    keywords: [],
-    flavor: "背头一梳，衬衫一穿，挑眉一笑——这一拳很有精神。"
+    cost: 3, atk: 3, hp: 3,
+    keywords: ["enrage"],
+    flavor: "背头一梳挑眉一笑。被还手了？那才叫来精神。"
   },
   {
     id: "hitoru", art: "assets/fuan09adeline_.jpg",
-    name: "圆环项圈", title: "慵懒地看着你",
-    cost: 2, atk: 2, hp: 3,
-    keywords: [],
-    flavor: "头发翘得乱七八糟，眼神却稳得很。"
+    name: "圆环项圈", title: "没人注意的角落",
+    cost: 2, atk: 2, hp: 2,
+    keywords: ["stealth"],
+    flavor: "慵懒地窝在角落里，存在感稀薄得像空气——直到她出手。"
   },
   {
     id: "atcvstac", art: "assets/ATCVSTAC.jpg",
-    name: "抱枕观众", title: "凑凑热闹喵",
+    name: "抱枕观众", title: "躲在抱枕后面",
     cost: 3, atk: 2, hp: 5,
-    keywords: [], battlecry: { type: "heal_hero", amount: 1 },
-    flavor: "抱紧软软的抱枕看戏，顺便把安心感分你一点。"
+    keywords: ["stealth"],
+    flavor: "把脸埋进抱枕里偷偷看戏——你看不到她，她看得到你。"
   },
   {
     id: "nuo", art: "assets/Nuo0825.jpg",
@@ -680,10 +681,10 @@ const CARD_POOL = [
   },
   {
     id: "jiaarpk", art: "assets/JIA_ARPK.jpg",
-    name: "双手比心", title: "爱心发射",
+    name: "双手比心", title: "爱心护盾",
     cost: 2, atk: 1, hp: 3,
-    keywords: [], battlecry: { type: "buff_random_ally", amount: 1 },
-    flavor: "手指拼成一颗心，biu 地发射给队友。"
+    keywords: [], battlecry: { type: "shield_random_ally", amount: 1 },
+    flavor: "手指拼成一颗心，biu 地发射——命中的队友罩上了爱心护盾。"
   },
   {
     id: "dasda", art: "assets/dasda2026.jpg",
@@ -694,10 +695,10 @@ const CARD_POOL = [
   },
   {
     id: "tisn", art: "assets/tisn360587.jpg",
-    name: "霸王龙咆哮", title: "仰天大笑冲出去",
-    cost: 5, atk: 5, hp: 4,
-    keywords: ["charge"],
-    flavor: "「我是霸王龙！」话音未落，人已经撞进了对面场地。"
+    name: "霸王龙咆哮", title: "专挑大个子撞",
+    cost: 5, atk: 5, hp: 5,
+    keywords: ["rush"],
+    flavor: "「我是霸王龙！」一头撞进对面阵地——先撞随从，明天再吃人。"
   },
   {
     id: "antum", art: "assets/xX_Antum_Xx.jpg",

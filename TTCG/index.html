@@ -117,6 +117,12 @@
     content: "❄"; position: absolute; top: 4px; right: 6px; font-size: 20px;
     color: #9fdcff; text-shadow: 0 0 6px #4fc3ff; pointer-events: none;
   }
+  .minion.stealthy { opacity: .55; border-style: dashed; }
+  .minion.stealthy::after {
+    content: "🌫"; position: absolute; top: 4px; right: 6px; font-size: 16px;
+    pointer-events: none;
+  }
+  .stats .atk.enraged { color: var(--red); text-shadow: 0 0 6px rgba(255,93,122,.8); }
   .minion.ready { border-color: var(--green); box-shadow: 0 0 10px rgba(67,229,140,.45); }
   .minion.ready:hover { transform: translateY(-3px); }
   .minion.selected { border-color: var(--gold); box-shadow: 0 0 16px rgba(255,201,63,.75); transform: translateY(-4px); }
