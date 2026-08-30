@@ -789,6 +789,11 @@ window.addEventListener("DOMContentLoaded", () => {
   $("#open-gallery").onclick = () => { buildGallery(); $("#gallery").classList.remove("hidden"); };
   $("#close-gallery").onclick = () => $("#gallery").classList.add("hidden");
 
+  // 触屏：点卡牌以外的区域收起预览
+  document.addEventListener("touchstart", e => {
+    if (!e.target.closest(".card, .minion, .g-card")) hidePreview();
+  }, { passive: true });
+
   // 开始菜单
   ensurePlayerAvatar();
   buildMenuAvatars();

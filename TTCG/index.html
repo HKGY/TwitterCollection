@@ -19,13 +19,13 @@
     --purple: #a06bff;
     --pink: #ff7ad9;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body {
     background: linear-gradient(155deg, #221049 0%, #170f33 45%, #0d1e45 100%);
     color: var(--text);
     font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
-    user-select: none;
+    height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
+    user-select: none; touch-action: manipulation;
   }
   header {
     display: flex; align-items: center; gap: 16px;
@@ -317,6 +317,91 @@
   .g-card .g-stats .hp { color: var(--green); }
   .g-card .g-effect { font-size: 12px; padding: 0 10px 3px; line-height: 1.5; min-height: 20px; }
   .g-card .g-flavor { font-size: 11px; color: var(--dim); font-style: italic; padding: 0 10px 10px; line-height: 1.5; }
+
+  /* ===== 移动端适配 ===== */
+  @media (max-width: 820px) {
+    header { gap: 8px; padding: 6px 10px; }
+    header h1 { font-size: 13px; letter-spacing: 0; }
+    header .hint { display: none; }
+    #back-menu, #open-gallery { padding: 6px 10px; font-size: 12px; }
+    header { justify-content: space-between; }
+
+    #main { flex-direction: column; }
+    /* 侧栏变底部横条：迷你日志 + 结束回合 */
+    #side {
+      width: 100%; flex-direction: row; align-items: stretch;
+      border-left: none; border-top: 2px solid var(--line);
+      padding: 6px 8px; gap: 8px; order: 2;
+    }
+    #side h2 { display: none; }
+    #log { flex: 1; height: 56px; font-size: 10px; line-height: 1.5; padding: 4px 6px; }
+    #end-turn { padding: 8px 14px; font-size: 14px; border-radius: 8px; align-self: stretch; }
+
+    .hero-row { padding: 4px 8px; gap: 8px; }
+    .hero { gap: 8px; padding: 4px 10px; border-radius: 12px; border-width: 2px; }
+    .hero .face-img { width: 48px; height: 48px; border-width: 2px; }
+    .hero .hp { font-size: 18px; }
+    .hero .label { font-size: 11px; max-width: 30vw; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .meta { font-size: 11px; gap: 8px; }
+    .meta b { font-size: 12px; }
+
+    .board {
+      min-height: 104px; gap: 6px; padding: 4px 8px;
+      justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .minion { width: 74px; border-radius: 8px; }
+    .minion img { height: 54px; }
+    .minion .mname { font-size: 10px; padding: 1px 2px; }
+    .minion .stats { font-size: 12px; padding: 0 4px 2px; }
+    .minion .stats .atk::before, .minion .stats .hp::before { font-size: 9px; }
+    .minion.frozen::after { font-size: 13px; top: 2px; right: 3px; }
+    .minion.stealthy::after { font-size: 11px; top: 2px; right: 3px; }
+
+    #hand-row { min-height: 128px; padding: 6px 8px 8px; }
+    #my-hand { gap: 6px; -webkit-overflow-scrolling: touch; }
+    .card { width: 92px; border-radius: 8px; }
+    .card img { height: 56px; }
+    .card .cost { width: 20px; height: 20px; font-size: 12px; top: 2px; left: 2px; }
+    .card .cname { font-size: 11px; padding: 2px 3px 0; }
+    .card .ceffect { font-size: 9px; height: 26px; line-height: 13px; padding: 0 3px; }
+    .card .stats { font-size: 12px; padding: 0 4px 2px; }
+    .card.playable:hover { transform: none; }
+
+    /* 预览：顶部居中小卡，点按随从/手牌可查看 */
+    #preview {
+      left: 50%; transform: translateX(-50%); top: 48px; width: 180px;
+      border-radius: 10px;
+    }
+    #preview img { height: 120px; }
+    #preview .p-name { font-size: 13px; }
+    #preview .p-title { font-size: 10px; }
+    #preview .p-stats { font-size: 12px; padding: 2px 8px; }
+    #preview .p-effect { font-size: 11px; padding: 0 8px 2px; }
+    #preview .p-flavor { font-size: 10px; padding: 0 8px 6px; }
+    #preview .p-cost { width: 20px; height: 20px; font-size: 12px; }
+
+    /* 开始菜单 */
+    #menu-title { font-size: 44px; letter-spacing: 2px; }
+    #menu-sub { font-size: 13px; letter-spacing: 3px; }
+    #menu-avatars img { width: 48px; height: 48px; margin: 0 -7px; border-width: 2px; }
+    #menu-buttons button { padding: 12px 44px; font-size: 16px; }
+    #menu-disclaimer { font-size: 10px; max-width: 90vw; }
+
+    /* 图鉴 */
+    #gallery-head { padding: 8px 10px; gap: 8px; }
+    #gallery-head h2 { font-size: 14px; }
+    #gallery-head .hint { font-size: 10px; }
+    #close-gallery { padding: 6px 14px; font-size: 12px; }
+    #gallery-grid { gap: 8px; padding: 10px; }
+    .g-card { width: calc(50% - 6px); border-radius: 10px; }
+    .g-card img { height: 34vw; max-height: 170px; }
+    .g-card .g-name { font-size: 13px; padding: 4px 8px 0; }
+    .g-card .g-title { font-size: 10px; padding: 0 8px; }
+    .g-card .g-stats { font-size: 12px; padding: 2px 8px; }
+    .g-card .g-effect { font-size: 10px; padding: 0 8px 2px; min-height: 14px; }
+    .g-card .g-flavor { font-size: 9px; padding: 0 8px 8px; }
+    .g-card.chosen::after { font-size: 9px; padding: 1px 6px; top: 4px; right: 4px; }
+  }
 </style>
 </head>
 <body>
