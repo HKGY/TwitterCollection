@@ -84,6 +84,7 @@
     text-shadow: 0 0 8px var(--red), 0 1px 2px rgba(0,0,0,.6);
   }
   .hero .label { color: var(--text); font-size: 14px; font-weight: bold; }
+  .hero .armor { color: #cfd8ff; font-weight: 900; font-size: 15px; text-shadow: 0 0 6px rgba(160,170,255,.6); }
   #ai-hero.targetable { border-color: var(--gold); cursor: crosshair; box-shadow: 0 0 14px rgba(255,201,63,.6); animation: pulse 1s infinite; }
   @keyframes pulse { 50% { box-shadow: 0 0 26px rgba(255,93,122,.9); } }
 
@@ -418,6 +419,7 @@
         <div class="hero" id="ai-hero">
           <img class="face-img" id="ai-avatar" src="" alt="对手头像">
           <span class="hp" id="ai-hp">30</span>
+          <span class="armor" id="ai-armor"></span>
           <span class="label" id="ai-name">对手</span>
         </div>
         <div class="meta">
@@ -433,6 +435,7 @@
         <div class="hero" id="my-hero">
           <img class="face-img" id="my-avatar" src="" alt="我的头像">
           <span class="hp" id="my-hp">30</span>
+          <span class="armor" id="my-armor"></span>
           <span class="label" id="my-name">你</span>
         </div>
         <div class="meta">

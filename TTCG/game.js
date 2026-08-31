@@ -73,11 +73,31 @@ function damageMinion(target, amount, source) {
   return amount;
 }
 
+// 治疗英雄：超出上限的部分转化为护甲（护甲先于生命承受伤害）
 function healHero(p, amount) {
   const pl = game.players[p];
   const before = pl.hp;
   pl.hp = Math.min(HERO_HP, pl.hp + amount);
-  return pl.hp - before;
+  const healed = pl.hp - before;
+  const overflow = amount - healed;
+  if (overflow > 0) pl.armor += overflow;
+  return { healed, overflow };
+}
+
+function healText(r) {
+  const parts = [];
+  if (r.healed > 0) parts.push(`回复 ${r.healed} 点生命`);
+  if (r.overflow > 0) parts.push(`获得 ${r.overflow} 点护甲`);
+  return parts.join("并") || "生命已满";
+}
+
+// 对英雄造成伤害：护甲优先吸收
+function damageHero(p, amount) {
+  const pl = game.players[p];
+  const absorbed = Math.min(pl.armor, amount);
+  pl.armor -= absorbed;
+  pl.hp -= amount - absorbed;
+  return absorbed;
 }
 
 // ---------- 头像与图鉴 ----------
@@ -127,8 +147,8 @@ function newGame() {
   game = {
     sid: ++sessionSeq,
     players: [
-      { name: "你", hp: HERO_HP, energy: 0, maxEnergy: 0, deck: makeDeck(), hand: [], board: [], fatigue: 0 },
-      { name: "对手", hp: HERO_HP, energy: 0, maxEnergy: 0, deck: makeDeck(), hand: [], board: [], fatigue: 0 },
+      { name: "你", hp: HERO_HP, armor: 0, energy: 0, maxEnergy: 0, deck: makeDeck(), hand: [], board: [], fatigue: 0 },
+      { name: "对手", hp: HERO_HP, armor: 0, energy: 0, maxEnergy: 0, deck: makeDeck(), hand: [], board: [], fatigue: 0 },
     ],
     turn: 0,           // 0 = 玩家, 1 = AI
     over: false,
@@ -153,7 +173,7 @@ function drawCard(p, silent) {
   const pl = game.players[p];
   if (pl.deck.length === 0) {
     pl.fatigue += 1;
-    pl.hp -= pl.fatigue;
+    damageHero(p, pl.fatigue);
     if (!silent) addLog(`${pl.name} 的牌库空了，疲劳受到 ${pl.fatigue} 点伤害！`, "bad");
     checkGameOver();
     return;
@@ -242,8 +262,8 @@ function resolveEffect(owner, eff, label, sourceCard) {
   const foe = game.players[1 - owner];
   switch (eff.type) {
     case "heal_hero": {
-      const healed = healHero(owner, eff.amount);
-      addLog(`${label}：${me.name}回复了 ${healed} 点生命。`, "good");
+      const r = healHero(owner, eff.amount);
+      addLog(`${label}：${me.name}${healText(r)}。`, "good");
       break;
     }
     case "draw": {
@@ -252,7 +272,7 @@ function resolveEffect(owner, eff, label, sourceCard) {
       break;
     }
     case "damage_face": {
-      foe.hp -= eff.amount;
+      damageHero(1 - owner, eff.amount);
       addLog(`${label}：对${foe.name}造成 ${eff.amount} 点伤害。`, "bad");
       break;
     }
@@ -262,7 +282,7 @@ function resolveEffect(owner, eff, label, sourceCard) {
         addLog(`${label}：对「${t.card.name}」造成 ${eff.amount} 点伤害。`, "bad");
         damageMinion(t, eff.amount, null);
       } else {
-        foe.hp -= eff.amount;
+        damageHero(1 - owner, eff.amount);
         addLog(`${label}：场上没有目标，${eff.amount} 点伤害打在${foe.name}脸上。`, "bad");
       }
       break;
@@ -387,11 +407,10 @@ function attack(p, attackerUid, target) {
   atkM.attacksLeft -= 1;
   if (atkM.stealth) { atkM.stealth = false; addLog(`「${atkM.card.name}」现身了！`); }
   if (target.type === "face") {
-    foe.hp -= getAtk(atkM);
+    damageHero(1 - p, getAtk(atkM));
     addLog(`「${atkM.card.name}」攻击${foe.name}，造成 ${getAtk(atkM)} 点伤害！`, p === 0 ? "good" : "bad");
     if (atkM.lifesteal) {
-      const healed = healHero(p, getAtk(atkM));
-      if (healed > 0) addLog(`吸血：${pl.name}回复 ${healed} 点生命。`, "good");
+      addLog(`吸血：${pl.name}${healText(healHero(p, getAtk(atkM)))}。`, "good");
     }
   } else {
     const defM = foe.board.find(m => m.uid === target.uid);
@@ -401,12 +420,10 @@ function attack(p, attackerUid, target) {
     const dealt = damageMinion(defM, aAtk, atkM);
     const taken = damageMinion(atkM, dAtk, defM);
     if (atkM.lifesteal && dealt > 0) {
-      const healed = healHero(p, dealt);
-      if (healed > 0) addLog(`吸血：${pl.name}回复 ${healed} 点生命。`, "good");
+      addLog(`吸血：${pl.name}${healText(healHero(p, dealt))}。`, "good");
     }
     if (defM.lifesteal && taken > 0) {
-      const healed = healHero(1 - p, taken);
-      if (healed > 0) addLog(`吸血：${foe.name}回复 ${healed} 点生命。`, "good");
+      addLog(`吸血：${foe.name}${healText(healHero(1 - p, taken))}。`, "good");
     }
   }
   cleanupDeaths();
@@ -439,8 +456,8 @@ function aiCardBonus(card) {
   const bc = card.battlecry;
   if (bc) {
     switch (bc.type) {
-      case "heal_hero": // 受伤越多越值，满血则浪费
-        b += Math.min(bc.amount, HERO_HP - ai.hp) * 4 - bc.amount;
+      case "heal_hero": // 溢出转护甲后治疗恒有价值，受伤时更佳
+        b += bc.amount * 2 + Math.min(bc.amount, HERO_HP - ai.hp);
         break;
       case "draw": // 手牌越少越需要补充
         b += Math.max(0, 6 - ai.hand.length) * 3;
@@ -537,7 +554,7 @@ function aiAttackStep(sid, done) {
   const totalAtk = faceable.reduce((s, m) => s + getAtk(m) * m.attacksLeft, 0);
   let atkM = null, target = null;
 
-  if (taunts.length === 0 && totalAtk >= me.hp) {
+  if (taunts.length === 0 && totalAtk >= me.hp + me.armor) {
     // 斩杀线：全部打脸（突袭随从帮不上忙）
     atkM = faceable[0];
     target = { type: "face" };
@@ -553,7 +570,7 @@ function aiAttackStep(sid, done) {
   } else {
     // 自由选择：评估所有(攻击者, 目标)组合，找收益超过打脸机会成本的最佳换血
     const threat = me.board.reduce((s, t) => s + getAtk(t), 0);
-    const desperate = ai.hp <= threat + 2; // 再不清场，下回合可能被打死
+    const desperate = ai.hp + ai.armor <= threat + 2; // 再不清场，下回合可能被打死
     let best = null;
     for (const m of attackers) {
       // 打脸的机会成本；突袭随从打不了脸，换血没有机会成本
@@ -737,6 +754,8 @@ function render() {
 
   $("#ai-hp").textContent = ai.hp;
   $("#my-hp").textContent = me.hp;
+  $("#ai-armor").textContent = ai.armor > 0 ? `🛡${ai.armor}` : "";
+  $("#my-armor").textContent = me.armor > 0 ? `🛡${me.armor}` : "";
   $("#ai-hand-count").textContent = ai.hand.length;
   $("#ai-deck-count").textContent = ai.deck.length;
   $("#my-deck-count").textContent = me.deck.length;
