@@ -1,4 +1,4 @@
-// TTCG 卡牌数据 —— 100 张头像重绘卡
+// TTCG 卡牌数据 —— 110 张头像重绘卡
 // keywords: taunt(嘲讽) / charge(冲锋) / shield(圣盾) / lifesteal(吸血)
 //           poison(剧毒) / windfury(风怒) / grow(成长)
 // keywords 新增: rush(突袭) / stealth(潜行) / enrage(激怒,受伤+2攻)
@@ -706,5 +706,75 @@ const CARD_POOL = [
     cost: 2, atk: 2, hp: 2,
     keywords: [], deathrattle: { type: "damage_face", amount: 1 },
     flavor: "自称善良又优雅的猫。退场时留下的手势可一点都不优雅。"
+  },
+  {
+    id: "prison", art: "assets/prison7749.jpg",
+    name: "三色豆香菜", title: "食堂噩梦具现化",
+    cost: 3, atk: 2, hp: 4,
+    keywords: [], deathrattle: { type: "heal_hero", amount: 2 },
+    flavor: "豆子和香菜撒了一地——不喜欢的人捂鼻，喜欢的人捡了两口回血。"
+  },
+  {
+    id: "corey", art: "assets/realcoreychiu.jpg",
+    name: "凳上大熊", title: "戴帽子的北极熊",
+    cost: 5, atk: 4, hp: 6,
+    keywords: ["taunt"],
+    flavor: "大熊端坐在小凳子上，帽檐一压——此路不通。"
+  },
+  {
+    id: "blackchoco", art: "assets/BlackChoco1ate.jpg",
+    name: "接受采访", title: "「玩原神玩的」",
+    cost: 4, atk: 2, hp: 5,
+    keywords: [], battlecry: { type: "buff_all_atk", amount: 1 },
+    flavor: "话筒递过来，她笑着说了句什么——全队士气莫名高涨。"
+  },
+  {
+    id: "eilong", art: "assets/bug_EilongMeiMa.jpg",
+    name: "碎裂二维码", title: "EMM",
+    cost: 3, atk: 2, hp: 2,
+    keywords: ["poison"],
+    flavor: "扫描这个码的程序全都崩溃了。EMM。"
+  },
+  {
+    id: "ghostfox", art: "assets/Cheese_Ghostfox.jpg",
+    name: "零一一五", title: "霊狐製作所",
+    cost: 4, atk: 3, hp: 4,
+    keywords: [], deathrattle: { type: "summon", atk: 2, hp: 1, name: "狐灵" },
+    flavor: "*盯着您看。制服编号0115倒下后，狐灵从衣领里飘了出来。"
+  },
+  {
+    id: "yansu", art: "assets/4x_n2ym3.jpg",
+    name: "为你撑伞", title: "大伞与小伞",
+    cost: 3, atk: 2, hp: 4,
+    keywords: [], battlecry: { type: "shield_random_ally", amount: 1 },
+    flavor: "他把大伞往她那边偏了偏——被罩住的人淋不到一滴雨。"
+  },
+  {
+    id: "cyanreimu", art: "assets/CyanReimu.jpg",
+    name: "乐园巫女", title: "梦想封印",
+    cost: 5, atk: 5, hp: 4,
+    keywords: [], battlecry: { type: "damage_all", amount: 1 },
+    flavor: "大蝴蝶结一晃，符卡漫天——对面全员吃了一轮弹幕。"
+  },
+  {
+    id: "hjs", art: "assets/HJS_2403_0.jpg",
+    name: "双V十字瞳", title: "闪闪亮毛茸茸",
+    cost: 2, atk: 2, hp: 2,
+    keywords: [], battlecry: { type: "buff_random_ally", amount: 1 },
+    flavor: "两只手都比着V，十字瞳一闪——被鼓励到的队友可可爱爱地变强了。"
+  },
+  {
+    id: "niklai", art: "assets/NIKLai0011.jpg",
+    name: "画到一半", title: "请画得可爱些",
+    cost: 4, atk: 2, hp: 6,
+    keywords: ["grow"],
+    flavor: "目前只有眼睛和耳朵。别急，画师每回合都会补上一点。"
+  },
+  {
+    id: "xinyue", art: "assets/xinyue520ac.jpg",
+    name: "吐舌猫猫", title: "两只一起",
+    cost: 2, atk: 1, hp: 2,
+    keywords: [], deathrattle: { type: "summon", atk: 1, hp: 2, name: "另一只猫" },
+    flavor: "画里本来就有两只。打倒一只，另一只吐着舌头顶上来。"
   },
 ];
