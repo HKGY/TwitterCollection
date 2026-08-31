@@ -331,10 +331,10 @@ const CARD_POOL = [
   },
   {
     id: "ciallowo", art: "assets/ciallowo.jpg",
-    name: "睡着了", title: "口水冒泡中",
+    name: "睡着了", title: "睡在路中间",
     cost: 1, atk: 0, hp: 3,
-    keywords: [], deathrattle: { type: "heal_hero", amount: 2 },
-    flavor: "退场前说了句梦话，大家听完都被治愈了。"
+    keywords: ["taunt"], deathrattle: { type: "heal_hero", amount: 2 },
+    flavor: "冒着口水泡睡在路中间，绕不过去。吵醒她的人听了句梦话，被治愈了。"
   },
   {
     id: "r0yx1e", art: "assets/r0yx1e.jpg",
@@ -346,9 +346,9 @@ const CARD_POOL = [
   {
     id: "shopassist", art: "assets/sh0p_ass1stant.jpg",
     name: "店员小人", title: "三笔画完",
-    cost: 1, atk: 0, hp: 2,
+    cost: 1, atk: 1, hp: 1,
     keywords: [], battlecry: { type: "draw", amount: 1 },
-    flavor: "「欢迎光临～」顺手塞给你一张传单。"
+    flavor: "「欢迎光临～」塞给你一张传单，还顺手拍了下你的肩膀。"
   },
   {
     id: "xcate", art: "assets/xcate329.jpg",
@@ -570,9 +570,9 @@ const CARD_POOL = [
   {
     id: "yyyuux", art: "assets/Yyyuux_ID.jpg",
     name: "观星者", title: "望远镜与月牙",
-    cost: 2, atk: 0, hp: 4,
+    cost: 2, atk: 1, hp: 4,
     keywords: [], battlecry: { type: "draw", amount: 1 },
-    flavor: "把镜筒对准夜空，总能看到一点新东西。"
+    flavor: "把镜筒对准夜空总能看到新东西——镜筒抡起来也能敲人。"
   },
   {
     id: "yuni", art: "assets/yunilove01.jpg",
