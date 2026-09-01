@@ -1,4 +1,4 @@
-// TTCG 卡牌数据 —— 110 张头像重绘卡
+// TTCG 卡牌数据 —— 120 张头像重绘卡
 // keywords: taunt(嘲讽) / charge(冲锋) / shield(圣盾) / lifesteal(吸血)
 //           poison(剧毒) / windfury(风怒) / grow(成长)
 // keywords 新增: rush(突袭) / stealth(潜行) / enrage(激怒,受伤+2攻)
@@ -776,5 +776,75 @@ const CARD_POOL = [
     cost: 2, atk: 1, hp: 2,
     keywords: [], deathrattle: { type: "summon", atk: 1, hp: 2, name: "另一只猫" },
     flavor: "画里本来就有两只。打倒一只，另一只吐着舌头顶上来。"
+  },
+  {
+    id: "fhv", art: "assets/fhv932189957574.jpg",
+    name: "侧脸微笑", title: "如沐春风",
+    cost: 3, atk: 2, hp: 4,
+    keywords: [], battlecry: { type: "heal_hero", amount: 2 },
+    flavor: "她只是侧过头笑了一下，一天的疲惫就少了一半。"
+  },
+  {
+    id: "inyuki", art: "assets/Inyuki_1014.jpg",
+    name: "墨雪", title: "藏进大衣领",
+    cost: 4, atk: 4, hp: 4,
+    keywords: ["stealth"],
+    flavor: "领子一竖，整个人缩进衣领的阴影里——雪落无声。"
+  },
+  {
+    id: "jianzhang", art: "assets/JIANZHANGdada.jpg",
+    name: "畜生调伏", title: "符纸已贴好",
+    cost: 4, atk: 4, hp: 4,
+    keywords: [], battlecry: { type: "damage_random", amount: 2 },
+    flavor: "御币一挥，符纸糊脸——「畜生調伏！」被贴中的当场老实。"
+  },
+  {
+    id: "nanlu", art: "assets/NanLuShang.jpg",
+    name: "云淡风轻", title: "圆点耳环",
+    cost: 3, atk: 3, hp: 4,
+    keywords: [],
+    flavor: "半睁着眼看你，什么都没说——但你知道她都懂。"
+  },
+  {
+    id: "przeblysk", art: "assets/Przeblysk214.jpg",
+    name: "花冠探头", title: "从画框外看你",
+    cost: 4, atk: 3, hp: 4,
+    keywords: [], battlecry: { type: "heal_hero", amount: 2 },
+    flavor: "戴着花环从边框后探出头来，把祝福撒了一路。"
+  },
+  {
+    id: "twiaslz", art: "assets/TwiASLZ.jpg",
+    name: "懒懒垂目", title: "不想被注意",
+    cost: 3, atk: 4, hp: 2,
+    keywords: ["stealth"],
+    flavor: "乱糟糟的头发垂下来挡住视线——但出手的时候一点都不懒。"
+  },
+  {
+    id: "youki", art: "assets/VAGHYouki.jpg",
+    name: "昂首的猫", title: "一直陪着你",
+    cost: 3, atk: 2, hp: 4,
+    keywords: [], deathrattle: { type: "shield_random_ally", amount: 1 },
+    flavor: "它挺直腰板站在那里，像从前一样。离开时，把守护留给了同伴。"
+  },
+  {
+    id: "snpngzi", art: "assets/snpngzi2.jpg",
+    name: "暗中一点光", title: "正儿八经的",
+    cost: 5, atk: 5, hp: 5,
+    keywords: ["stealth"],
+    flavor: "你只能看见黑暗里那一个白点——看不见的部分才是最大的。"
+  },
+  {
+    id: "songdadan", art: "assets/songdadan001.jpg",
+    name: "担忧的巴特", title: "Oh Hamburgers",
+    cost: 2, atk: 1, hp: 4,
+    keywords: [], battlecry: { type: "heal_hero", amount: 1 },
+    flavor: "他搓着手指一脸担心地看着你，憨厚得让人心软。"
+  },
+  {
+    id: "zhao", art: "assets/zhao231804.jpg",
+    name: "末日大餐", title: "先吃一百份糖醋里脊",
+    cost: 4, atk: 4, hp: 4,
+    keywords: [], battlecry: { type: "heal_hero", amount: 2 },
+    flavor: "世界末日前要吃一百份糖醋里脊——先亲一口垫垫肚子。"
   },
 ];
